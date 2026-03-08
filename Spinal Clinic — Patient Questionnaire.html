@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Spinal Clinic — Patient Questionnaire</title>
+<style>
+:root {
+  --navy:#0f2340; --navy-mid:#1a3a5c; --teal:#0e8a7a; --teal-light:#12a898;
+  --cream:#f7f4ef; --warm:#fdfcfa; --text:#1a1a2e; --muted:#5a6478;
+  --border:#d9d4cc; --danger:#c0392b; --radius:12px;
+  --shadow:0 4px 24px rgba(15,35,64,0.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;background:var(--cream);color:var(--text);min-height:100vh;overscroll-behavior:none;}
+
+[dir="rtl"] .yn-row{flex-direction:row-reverse;}
+[dir="rtl"] .odi-option{flex-direction:row-reverse;}
+[dir="rtl"] .info-strip{flex-direction:row-reverse;}
+[dir="rtl"] .flag-alert{flex-direction:row-reverse;}
+[dir="rtl"] .app-header-main{flex-direction:row-reverse;}
+
+/* ── HEADER ── */
+.app-header{background:var(--navy);position:sticky;top:0;z-index:100;box-shadow:0 2px 16px rgba(0,0,0,0.3);}
+.nhs-bar{background:#003087;padding:8px 16px;display:flex;align-items:center;gap:12px;}
+.nhs-box{background:#005EB8;color:#fff;font-weight:900;font-size:1.1rem;padding:3px 8px;border-radius:3px;letter-spacing:-0.03em;font-family:Arial,sans-serif;flex-shrink:0;}
+.nhs-trust{color:#fff;}
+.nhs-trust .t1{font-size:0.8rem;font-weight:700;}
+.nhs-trust .t2{font-size:0.67rem;color:rgba(255,255,255,0.65);margin-top:1px;}
+.app-header-main{padding:9px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid rgba(255,255,255,0.1);}
+.hdr-titles .clinic{font-size:0.95rem;font-weight:700;color:#fff;}
+.hdr-titles .qsub{font-size:0.68rem;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.06em;margin-top:2px;}
+.hdr-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.lang-sel{display:flex;gap:3px;}
+.lang-btn{padding:4px 8px;border-radius:5px;border:1.5px solid rgba(255,255,255,0.25);background:transparent;color:rgba(255,255,255,0.7);font-size:0.7rem;font-weight:600;cursor:pointer;font-family:inherit;}
+.lang-btn.on{background:rgba(255,255,255,0.18);color:#fff;border-color:rgba(255,255,255,0.5);}
+.step-pill{background:rgba(255,255,255,0.12);border-radius:20px;padding:4px 11px;font-size:0.73rem;font-weight:500;color:#fff;white-space:nowrap;}
+
+.progress-bar{height:4px;background:rgba(15,35,64,0.08);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--teal-light));transition:width 0.4s ease;width:0%;}
+
+/* ── SECTIONS ── */
+.sec{display:none;}
+.sec.on{display:block;animation:fi 0.28s ease;}
+@keyframes fi{from{opacity:0;transform:translateY(7px);}to{opacity:1;transform:none;}}
+.inner{max-width:740px;margin:0 auto;padding:22px 16px 100px;}
+
+.sec-title{font-family:Georgia,serif;font-size:1.4rem;color:var(--navy);margin-bottom:5px;line-height:1.25;}
+.sec-desc{font-size:0.875rem;color:var(--muted);margin-bottom:18px;line-height:1.65;}
+
+.card{background:var(--warm);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow);padding:17px 19px;margin-bottom:13px;}
+.card-title{font-weight:600;font-size:0.9rem;color:var(--navy);margin-bottom:11px;display:flex;align-items:center;gap:8px;}
+.num{background:var(--navy);color:#fff;width:22px;height:22px;border-radius:50%;font-size:0.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* ODI */
+.odi-opts{display:flex;flex-direction:column;gap:6px;}
+.odi-opt{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;background:#fff;user-select:none;transition:all 0.15s;}
+.odi-opt.sel{border-color:var(--teal);background:#f0faf8;}
+.rdot{width:19px;height:19px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.odi-opt.sel .rdot{border-color:var(--teal);background:var(--teal);}
+.odi-opt.sel .rdot::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%;}
+.odi-lbl{font-size:0.85rem;line-height:1.45;}
+
+/* YN rows */
+.yn-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #eee;gap:10px;}
+.yn-row:last-child{border-bottom:none;}
+.yn-lbl{font-size:0.875rem;line-height:1.5;flex:1;}
+.yn-btns{display:flex;gap:5px;flex-shrink:0;}
+.yn-btn{padding:6px 14px;border-radius:6px;border:1.5px solid var(--border);background:#fff;font-size:0.8rem;font-weight:500;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.yn-btn.yes.on{background:#e8f9f5;border-color:var(--teal);color:var(--teal);}
+.yn-btn.no.on{background:#fef1f0;border-color:#e07066;color:var(--danger);}
+
+/* Checkboxes */
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+@media(max-width:460px){.cg{grid-template-columns:1fr;}}
+.ci{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:8px;border:1.5px solid var(--border);cursor:pointer;background:#fff;user-select:none;transition:all 0.15s;}
+.ci.on{border-color:var(--navy-mid);background:#eef3f9;}
+.cbox{width:19px;height:19px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.ci.on .cbox{background:var(--navy);border-color:var(--navy);}
+.ci.on .cbox svg{display:block;}
+.cbox svg{display:none;}
+.ci-lbl{font-size:0.83rem;line-height:1.3;}
+
+/* VAS */
+.vas-wrap{padding:4px 0 2px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:8px;border-radius:4px;outline:none;cursor:pointer;background:#e0ddd8;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:#fff;border:3px solid var(--teal);box-shadow:0 2px 8px rgba(14,138,122,0.3);cursor:pointer;}
+.vas-num{text-align:center;font-size:1.9rem;font-weight:700;color:var(--navy);margin:4px 0 2px;}
+.vas-desc{text-align:center;font-size:0.76rem;color:var(--muted);min-height:17px;}
+.vas-ends{display:flex;justify-content:space-between;font-size:0.71rem;color:var(--muted);margin-top:4px;}
+
+/* Diagram */
+.body-wrap{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.body-side{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.body-lbl{font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
+.body-canvas{border:1.5px solid var(--border);border-radius:8px;background:#fff;touch-action:none;cursor:crosshair;display:block;}
+.tool-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
+.tool-btn{padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-size:0.77rem;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:all 0.15s;}
+.tool-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
+.tool-btn.clr{color:var(--danger);border-color:#e5b0ac;}
+.cdot{width:13px;height:13px;border-radius:50%;display:inline-block;flex-shrink:0;}
+
+/* Welcome */
+.wlc-card{background:var(--navy);border-radius:14px;padding:26px 22px;color:#fff;margin-bottom:16px;}
+.wlc-card h2{font-family:Georgia,serif;font-size:1.5rem;margin-bottom:9px;line-height:1.25;}
+.wlc-card p{font-size:0.85rem;color:rgba(255,255,255,0.75);line-height:1.65;}
+.info-strip{background:#fff;border-radius:9px;border:1px solid var(--border);padding:12px 15px;font-size:0.8rem;color:var(--muted);display:flex;align-items:flex-start;gap:8px;line-height:1.5;margin-bottom:13px;}
+
+/* Patient details */
+.pd-label{font-size:0.78rem;font-weight:600;color:var(--muted);display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:0.05em;}
+.pd-input{width:100%;padding:10px 12px;border-radius:8px;border:1.5px solid var(--border);font-size:1.05rem;font-weight:600;letter-spacing:0.04em;font-family:inherit;color:var(--text);background:#fff;outline:none;}
+.pd-input:focus{border-color:var(--teal);}
+.dob-row{display:flex;gap:8px;}
+.dob-col{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.dob-col-lbl{font-size:0.68rem;color:var(--muted);}
+.dob-sel{width:100%;padding:9px 6px;border-radius:7px;border:1.5px solid var(--border);font-size:0.92rem;font-family:inherit;color:var(--text);background:#fff;outline:none;cursor:pointer;}
+.dob-sel:focus{border-color:var(--teal);}
+.dob-display{text-align:center;font-size:0.8rem;color:var(--muted);margin-top:6px;min-height:1.2em;font-style:italic;}
+
+/* Summary */
+.score-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:13px;}
+.score-card{background:#fff;border-radius:9px;padding:13px;text-align:center;border:1px solid var(--border);}
+.score-n{font-size:1.85rem;font-weight:700;color:var(--navy);line-height:1;}
+.score-l{font-size:0.68rem;color:var(--muted);margin-top:2px;font-weight:500;text-transform:uppercase;letter-spacing:0.05em;}
+.score-b{font-size:0.71rem;font-weight:600;margin-top:2px;}
+.sum-block{background:var(--navy);color:#fff;border-radius:var(--radius);padding:18px 20px;margin-bottom:13px;line-height:1.75;font-size:0.87rem;}
+.sum-block h3{font-family:Georgia,serif;font-size:0.97rem;font-weight:400;margin-bottom:7px;color:rgba(255,255,255,0.65);font-style:italic;}
+.flag-box{background:#fef2f2;border:1.5px solid #f5c6c4;border-radius:9px;padding:12px 15px;margin-bottom:13px;display:flex;gap:10px;align-items:flex-start;}
+.flag-txt strong{display:block;color:var(--danger);font-size:0.78rem;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}
+.flag-txt{font-size:0.86rem;line-height:1.55;}
+.pdf-btn{width:100%;padding:14px;background:var(--teal);color:#fff;border:none;border-radius:9px;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:7px;margin-bottom:9px;}
+.reset-btn{width:100%;padding:12px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:9px;font-size:0.87rem;font-weight:500;cursor:pointer;font-family:inherit;}
+
+/* Nav */
+.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:11px 16px 15px;display:flex;gap:9px;z-index:100;box-shadow:0 -4px 18px rgba(0,0,0,0.07);}
+.btn{flex:1;padding:13px;border-radius:9px;border:none;font-size:0.92rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all 0.15s;}
+.btn-back{background:var(--cream);color:var(--navy);border:1.5px solid var(--border);flex:0.5;}
+.btn-next{background:var(--navy);color:#fff;}
+
+/* Misc */
+.text-input{width:100%;padding:9px 12px;border-radius:7px;border:1.5px solid var(--border);font-size:0.87rem;font-family:inherit;color:var(--text);background:#fff;outline:none;resize:none;margin-top:6px;}
+.text-input:focus{border-color:var(--teal);}
+.err{color:var(--danger);font-size:0.79rem;margin-top:7px;display:none;}
+.err.show{display:block;}
+.how-to{background:#eef3f9;border:1px solid #c5d5e8;border-radius:7px;padding:9px 13px;font-size:0.82rem;color:#1a3a5c;margin-bottom:12px;}
+.sec-hdr{grid-column:1/-1;font-size:0.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;padding-bottom:2px;border-bottom:1px solid var(--border);margin-top:3px;}
+.pat-det-box{background:#f0f4f9;border-radius:8px;padding:10px 14px;margin-bottom:11px;display:flex;gap:20px;flex-wrap:wrap;}
+.pat-det-item .pdi-lbl{font-size:0.67rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;}
+.pat-det-item .pdi-val{font-size:0.95rem;font-weight:700;color:var(--navy);margin-top:1px;letter-spacing:0.03em;}
+</style>
+</head>
+<body>
+
+<div class="app-header" id="appHeader">
+  <div class="nhs-bar">
+    <div class="nhs-box">NHS</div>
+    <div class="nhs-trust">
+      <div class="t1">South Tyneside and Sunderland NHS Foundation Trust</div>
+      <div class="t2">NHS Foundation Trust</div>
+    </div>
+  </div>
+  <div class="app-header-main">
+    <div class="hdr-titles">
+      <div class="clinic" id="hdrTitle">Spinal Outpatient Clinic</div>
+      <div class="qsub" id="hdrSub">Patient Health Questionnaire</div>
+    </div>
+    <div class="hdr-right">
+
+      <div class="step-pill" id="stepPill"></div>
+    </div>
+  </div>
+</div>
+<div class="progress-bar"><div class="progress-fill" id="progFill"></div></div>
+
+<!-- WELCOME -->
+<div class="sec on" id="s-welcome">
+  <div class="inner">
+    <div class="wlc-card">
+      <h2 id="wlcTitle">Welcome.<br>Please take a few minutes to complete this questionnaire.</h2>
+      <p id="wlcBody">Your answers help your clinical team prepare for today's appointment. There are no right or wrong answers — just answer as honestly as you can based on the <strong>last two weeks</strong>.</p>
+    </div>
+    <div class="info-strip">
+      <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="#5a6478" stroke-width="2" style="flex-shrink:0;margin-top:1px"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="wlcPrivacy">No personal identifying information is stored or transmitted. This questionnaire resets when complete.</span>
+    </div>
+    <div class="card">
+      <div class="card-title" style="margin-bottom:14px;">
+        <svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink:0"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span id="pdCardTitle">Patient Details</span>
+
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div>
+          <label class="pd-label" id="hospLbl">Hospital Number</label>
+          <input type="text" id="hospNum" class="pd-input" placeholder="e.g. X12345" oninput="state.hospNum=this.value">
+        </div>
+        <div>
+          <label class="pd-label" id="dobLbl">Date of Birth</label>
+          <div class="dob-row">
+            <div class="dob-col" style="flex:1">
+              <span class="dob-col-lbl" id="dobDayLbl">Day</span>
+              <select id="dobDay" class="dob-sel" onchange="updateDOB()"></select>
+            </div>
+            <div class="dob-col" style="flex:1.7">
+              <span class="dob-col-lbl" id="dobMonLbl">Month</span>
+              <select id="dobMon" class="dob-sel" onchange="updateDOB()"></select>
+            </div>
+            <div class="dob-col" style="flex:1.3">
+              <span class="dob-col-lbl" id="dobYrLbl">Year</span>
+              <select id="dobYr" class="dob-sel" onchange="updateDOB()"></select>
+            </div>
+          </div>
+          <div class="dob-display" id="dobDisplay" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ODI -->
+<div class="sec" id="s-odi">
+  <div class="inner">
+    <div class="sec-title" id="odiTitle">Pain &amp; Daily Activities</div>
+    <div class="sec-desc" id="odiDesc">For each area below, select the <strong>one statement</strong> that best describes how your back or leg pain affects you right now.</div>
+    <div id="odiCards"></div>
+    <div class="err" id="odiErr"></div>
+  </div>
+</div>
+
+<!-- RED FLAGS -->
+<div class="sec" id="s-rf">
+  <div class="inner">
+    <div class="sec-title" id="rfTitle">Important Symptoms</div>
+    <div class="sec-desc" id="rfDesc">These questions relate to symptoms that need prompt attention. Please answer each one carefully.</div>
+    <div class="card"><div id="rfRows"></div></div>
+    <div class="err" id="rfErr"></div>
+  </div>
+</div>
+
+<!-- COMORBIDITIES -->
+<div class="sec" id="s-cm">
+  <div class="inner">
+    <div class="sec-title" id="cmTitle">Medical History</div>
+    <div class="sec-desc" id="cmDesc">Please tap any conditions you have been diagnosed with or are being treated for.</div>
+    <div class="card">
+      <div class="cg" id="cmGrid"></div>
+      <div id="cmOtherBox" style="display:none;margin-top:10px;">
+        <div style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;" id="cmOtherLbl">Please describe the other condition:</div>
+        <input type="text" class="text-input" id="cmOtherText" style="margin-top:0" placeholder="e.g. condition name…" oninput="state.cmOther=this.value">
+      </div>
+    </div>
+
+    <!-- Blood thinners -->
+    <div class="card" style="margin-top:11px;">
+      <div class="card-title" id="btTitle">Blood-thinning medications</div>
+      <div class="yn-row">
+        <div class="yn-lbl" id="btQ">Are you currently taking any blood-thinning medication?</div>
+        <div class="yn-btns">
+          <button class="yn-btn yes" id="btY" onclick="ynClick('bt','yes',this)">Yes</button>
+          <button class="yn-btn no"  id="btN" onclick="ynClick('bt','no',this)">No</button>
+        </div>
+      </div>
+      <div id="btDetail" style="display:none;margin-top:11px;">
+        <div style="font-size:0.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;" id="btTickLbl">Please tick all that apply:</div>
+        <div class="cg" id="btGrid"></div>
+        <div style="margin-top:9px;">
+          <div style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;" id="btOtherLbl">Other (optional):</div>
+          <input type="text" class="text-input" id="btOther" style="margin-top:0" placeholder="e.g. another medication not listed…">
+        </div>
+      </div>
+    </div>
+
+    <!-- Allergies -->
+    <div class="card" style="margin-top:11px;">
+      <div class="card-title" id="alTitle">Allergies</div>
+      <div class="yn-row">
+        <div class="yn-lbl" id="alQ">Do you have any known drug or latex allergies?</div>
+        <div class="yn-btns">
+          <button class="yn-btn yes" id="alY" onclick="ynClick('al','yes',this)">Yes</button>
+          <button class="yn-btn no"  id="alN" onclick="ynClick('al','no',this)">No</button>
+        </div>
+      </div>
+      <div id="alDetail" style="display:none;margin-top:11px;">
+        <div style="font-size:0.76rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;" id="alTickLbl">Please tick all that apply:</div>
+        <div class="cg" id="alGrid"></div>
+        <div style="margin-top:9px;">
+          <div style="font-size:0.8rem;color:var(--muted);margin-bottom:4px;" id="alOtherLbl">Other allergy (optional — please describe):</div>
+          <input type="text" class="text-input" id="alOther" style="margin-top:0" placeholder="e.g. reaction and severity…">
+        </div>
+      </div>
+    </div>
+    <div class="err" id="cmErr"></div>
+  </div>
+</div>
+
+<!-- PAIN DIAGRAM -->
+<div class="sec" id="s-pd">
+  <div class="inner">
+    <div class="sec-title" id="pdTitle">Where Is Your Pain?</div>
+    <div class="sec-desc" id="pdDesc">Use your finger to draw on the body diagrams below to show where you feel pain.</div>
+    <div class="how-to" id="pdHowTo"><strong>How to use:</strong> Choose a colour for your type of pain, then drag your finger over the body picture to mark the painful area. Tap <em>Erase</em> to correct mistakes or <em>Clear all</em> to start again.</div>
+    <div class="tool-row">
+      <button class="tool-btn on" id="tDraw" onclick="setTool('draw')">✏ <span id="lblDraw">Draw</span></button>
+      <button class="tool-btn" id="tErase" onclick="setTool('erase')">◻ <span id="lblErase">Erase</span></button>
+      <button class="tool-btn on" id="tC0" onclick="setCol('#e63946',0)"><span class="cdot" style="background:#e63946"></span><span id="lblAch">Aching</span></button>
+      <button class="tool-btn" id="tC1" onclick="setCol('#f4a261',1)"><span class="cdot" style="background:#f4a261"></span><span id="lblBrn">Burning</span></button>
+      <button class="tool-btn" id="tC2" onclick="setCol('#2a9d8f',2)"><span class="cdot" style="background:#2a9d8f"></span><span id="lblNmb">Numbness</span></button>
+      <button class="tool-btn clr" onclick="clearDiagram()">✕ <span id="lblClr">Clear all</span></button>
+    </div>
+    <div class="body-wrap" id="bodyWrap"></div>
+    <p style="font-size:0.74rem;color:var(--muted);margin-top:9px;text-align:center;" id="pdSkip">If you have no pain to mark, you may continue without drawing.</p>
+  </div>
+</div>
+
+<!-- VAS -->
+<div class="sec" id="s-vas">
+  <div class="inner">
+    <div class="sec-title" id="vasTitle">Pain Scores</div>
+    <div class="sec-desc" id="vasDesc">Drag the sliders to show how severe your pain has been <strong>over the last week</strong>. 0 = no pain, 10 = worst imaginable.</div>
+    <div class="card">
+      <div class="card-title"><span class="num">1</span><span id="vasBackLbl">Back Pain</span></div>
+      <div class="vas-wrap">
+        <div class="vas-num" id="vasBackNum">0</div>
+        <div class="vas-desc" id="vasBackDesc"></div>
+        <input type="range" min="0" max="10" value="0" id="slBack" oninput="vasChange('Back',this.value)">
+        <div class="vas-ends"><span id="vasLo1">0 — No pain</span><span id="vasHi1">10 — Worst possible</span></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="num">2</span><span id="vasLegLbl">Leg Pain (sciatica / radiating pain)</span></div>
+      <div class="vas-wrap">
+        <div class="vas-num" id="vasLegNum">0</div>
+        <div class="vas-desc" id="vasLegDesc"></div>
+        <input type="range" min="0" max="10" value="0" id="slLeg" oninput="vasChange('Leg',this.value)">
+        <div class="vas-ends"><span id="vasLo2">0 — No pain</span><span id="vasHi2">10 — Worst possible</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="sec" id="s-sum">
+  <div class="inner">
+    <div class="sec-title" id="sumTitle">Clinical Summary</div>
+    <div class="sec-desc" id="sumDesc">This summary is for your clinical team. Please hand the tablet to the receptionist when complete.</div>
+    <div id="sumContent"></div>
+    <button class="pdf-btn" id="pdfBtn" onclick="exportPDF()" style="display:none">
+      <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span id="pdfLbl">Export PDF for Clinical Record</span>
+    </button>
+    <button class="reset-btn" id="resetBtn" onclick="resetApp()" style="display:none">
+      <span id="resetLbl">Start New Patient</span>
+    </button>
+  </div>
+</div>
+
+<div class="nav-bar" id="navBar">
+  <button class="btn btn-back" id="btnBack" onclick="nav(-1)" style="display:none">← <span id="lblBack">Back</span></button>
+  <button class="btn btn-next" id="btnNext" onclick="nav(1)"><span id="lblNext">Begin</span></button>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const SECS = ['welcome','odi','rf','cm','pd','vas','sum'];
+let curSec = 0;
+let lang = 'en';
+
+const MONTHS_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+const state = {
+  hospNum: '',
+  dob: '29/06/2013',
+  odiAns: new Array(10).fill(null),
+  rf: {},
+  cm: [], cmOther: '',
+  bt: null, btMeds: [], btOther: '',
+  al: null, alList: [], alOther: '',
+  vasBack: 0, vasLeg: 0,
+  diagFront: null, diagBack: null
+};
+
+const BT_MEDS = [
+  {n:'Warfarin', cat:'ac'},
+  {n:'Rivaroxaban (Xarelto)', cat:'ac'},
+  {n:'Apixaban (Eliquis)', cat:'ac'},
+  {n:'Edoxaban (Lixiana)', cat:'ac'},
+  {n:'Dabigatran (Pradaxa)', cat:'ac'},
+  {n:'Heparin / LMWH (e.g. enoxaparin)', cat:'ac'},
+  {n:'Aspirin', cat:'ap'},
+  {n:'Clopidogrel (Plavix)', cat:'ap'},
+  {n:'Ticagrelor (Brilique)', cat:'ap'},
+  {n:'Prasugrel (Efient)', cat:'ap'},
+  {n:'Dipyridamole', cat:'ap'},
+];
+
+const AL_LIST = [
+  'Penicillin',
+  'Amoxicillin / Co-amoxiclav',
+  'Cephalosporins (e.g. cefalexin)',
+  'Sulfonamides (e.g. trimethoprim)',
+  'NSAIDs (e.g. ibuprofen, naproxen)',
+  'Aspirin',
+  'Codeine / Morphine / Opioids',
+  'Metronidazole',
+  'Ciprofloxacin / Quinolones',
+  'Contrast dye (X-ray / CT)',
+  'Latex',
+  'Sticking plaster / adhesive',
+];
+
+// ═══════════════════════════════════════════════════════
+// TRANSLATIONS
+// ═══════════════════════════════════════════════════════
+const T = {
+  en: {
+    dir:'ltr',
+    hdrTitle:'Spinal Outpatient Clinic', hdrSub:'Patient Health Questionnaire',
+    wlcTitle:'Welcome.\nPlease take a few minutes to complete this questionnaire.',
+    wlcBody:'Your answers help your clinical team prepare for today\'s appointment. There are no right or wrong answers — just answer as honestly as you can based on the <strong>last two weeks</strong>.',
+    wlcPrivacy:'No personal identifying information is stored or transmitted. This questionnaire resets when complete.',
+    pdCardTitle:'Patient Details',
+    hospLbl:'Hospital Number', dobLbl:'Date of Birth',
+    dobDayLbl:'Day', dobMonLbl:'Month', dobYrLbl:'Year',
+    odiTitle:'Pain & Daily Activities',
+    odiDesc:'For each area below, select the <strong>one statement</strong> that best describes how your back or leg pain affects you right now.',
+    rfTitle:'Important Symptoms',
+    rfDesc:'These questions relate to symptoms that need prompt attention. Please answer each one carefully.',
+    cmTitle:'Medical History',
+    cmDesc:'Please tap any conditions you have been diagnosed with or are being treated for.',
+    btTitle:'Blood-thinning medications', btQ:'Are you currently taking any blood-thinning medication?',
+    btTickLbl:'Please tick all that apply:', btOtherLbl:'Other (optional):',
+    alTitle:'Allergies', alQ:'Do you have any known drug or latex allergies?',
+    alTickLbl:'Please tick all that apply:', alOtherLbl:'Other allergy (optional — please describe):',
+    pdTitle:'Where Is Your Pain?',
+    pdDesc:'Use your finger to draw on the body diagrams below to show where you feel pain.',
+    pdHowTo:'<strong>How to use:</strong> Choose a colour for your type of pain, then drag your finger over the body picture to mark the painful area. Tap <em>Erase</em> to correct mistakes or <em>Clear all</em> to start again.',
+    pdSkip:'If you have no pain to mark, you may continue without drawing.',
+    vasTitle:'Pain Scores',
+    vasDesc:'Drag the sliders to show how severe your pain has been <strong>over the last week</strong>. 0 = no pain, 10 = worst imaginable.',
+    vasBackLbl:'Back Pain', vasLegLbl:'Leg Pain (sciatica / radiating pain)',
+    vasLo:'0 — No pain', vasHi:'10 — Worst possible',
+    sumTitle:'Clinical Summary',
+    sumDesc:'This summary is for your clinical team. Please hand the tablet to the receptionist when complete.',
+    lblDraw:'Draw', lblErase:'Erase', lblAch:'Aching', lblBrn:'Burning', lblNmb:'Numbness', lblClr:'Clear all',
+    lblBack:'Back', lblNext:'Begin',
+    yes:'Yes', no:'No',
+    pdfLbl:'Export PDF for Clinical Record', resetLbl:'Start New Patient',
+    btOtherPh:'e.g. another medication not listed…', alOtherPh:'e.g. reaction and severity…',
+    errODI:'⚠ Please answer all sections before continuing.',
+    errRF:'⚠ Please answer all questions before continuing.',
+    errCM:'⚠ Please answer the blood thinner and allergy questions before continuing.',
+    stepOf:'Step {n} of {t}', welcome:'Welcome', complete:'Complete',
+    frontLbl:'Front', backLbl:'Back',
+    vasWords:['No pain','Very mild','Mild','Mild–moderate','Moderate','Moderate','Moderate–severe','Severe','Severe','Very severe','Worst possible'],
+    odiBands:['Minimal disability','Moderate disability','Severe disability','Crippling disability','Bed-bound'],
+    rfQs:[
+      'Have you noticed any new difficulty controlling your bladder (leaking urine, or inability to pass urine)?',
+      'Have you noticed any new difficulty controlling your bowels (leaking or loss of control)?',
+      'Have you noticed any new numbness or tingling around your bottom, groin, or inner thighs (saddle area)?',
+      'Do you have weakness or numbness in both legs?',
+      'Have you noticed a sudden significant worsening of your ability to walk?'
+    ],
+    cmLabels:['Diabetes','Hypertension','Heart disease / angina','Previous heart attack','Stroke / TIA','Kidney disease','Liver disease','Lung disease / COPD / asthma','Cancer (current or recent)','Osteoporosis','Rheumatoid arthritis','Depression / anxiety','Epilepsy / seizures','Previous spinal surgery','Hip / knee replacement','Other significant condition'],
+    rfAlertLbl:'Red Flag(s) Reported', sumLbl:'Clinical Summary',
+    cmLbl:'Comorbidities:', btLbl:'Blood thinners:', alLbl:'Allergies:',
+    noneRep:'None reported', noneKnown:'None known',
+    diagLbl:'Pain Diagram', hospLblPDF:'Hospital No.', dobLblPDF:'Date of Birth',
+    pdfDisc:'This document was generated by a patient self-report tool. It is not a clinical assessment. All information should be verified with the patient during consultation.',
+    acHeader:'Anticoagulants', apHeader:'Antiplatelets',
+    odiOptional:'(Optional — skip if not applicable)',
+    odiSections: [
+      {t:'Pain Intensity', opts:['I have no pain at the moment.','The pain is very mild at the moment.','The pain is moderate at the moment.','The pain is fairly severe at the moment.','The pain is very severe at the moment.','The pain is the worst imaginable at the moment.']},
+      {t:'Personal Care', opts:['I can look after myself normally without causing extra pain.','I can look after myself normally but it causes extra pain.','It is painful to look after myself and I am slow and careful.','I need some help but manage most of my personal care.','I need help every day in most aspects of self-care.','I do not get dressed, wash with difficulty and stay in bed.']},
+      {t:'Lifting', opts:['I can lift heavy weights without extra pain.','I can lift heavy weights but it gives extra pain.','Pain prevents me from lifting heavy weights off the floor, but I can if they are conveniently placed.','Pain prevents me from lifting heavy weights but I can manage light to medium weights if conveniently positioned.','I can lift only very light weights.','I cannot lift or carry anything at all.']},
+      {t:'Walking', opts:['Pain does not prevent me walking any distance.','Pain prevents me walking more than 1 mile.','Pain prevents me walking more than ½ a mile.','Pain prevents me walking more than 100 yards.','I can only walk using a stick or crutches.','I am in bed most of the time and have to crawl to the toilet.']},
+      {t:'Sitting', opts:['I can sit in any chair as long as I like.','I can only sit in my favourite chair as long as I like.','Pain prevents me from sitting for more than 1 hour.','Pain prevents me from sitting for more than ½ hour.','Pain prevents me from sitting for more than 10 minutes.','Pain prevents me from sitting at all.']},
+      {t:'Standing', opts:['I can stand as long as I want without extra pain.','I can stand as long as I want but it gives me extra pain.','Pain prevents me from standing for more than 1 hour.','Pain prevents me from standing for more than 30 minutes.','Pain prevents me from standing for more than 10 minutes.','Pain prevents me from standing at all.']},
+      {t:'Sleeping', opts:['My sleep is never disturbed by pain.','My sleep is occasionally disturbed by pain.','Because of pain I have less than 6 hours sleep.','Because of pain I have less than 4 hours sleep.','Because of pain I have less than 2 hours sleep.','Pain prevents me from sleeping at all.']},
+      {t:'Sex Life', opts:['My sex life is normal and causes no extra pain.','My sex life is normal but causes some extra pain.','My sex life is nearly normal but is very painful.','My sex life is severely restricted by pain.','My sex life is nearly absent because of pain.','Pain prevents any sex life at all.'], optional:true},
+      {t:'Social Life', opts:['My social life is normal and gives me no extra pain.','My social life is normal but increases the degree of pain.','Pain has no significant effect on my social life apart from limiting my more energetic interests.','Pain has restricted my social life and I do not go out as often.','Pain has restricted my social life to my home.','I have no social life because of pain.']},
+      {t:'Travelling', opts:['I can travel anywhere without pain.','I can travel anywhere but it gives me extra pain.','Pain is bad but I manage journeys over two hours.','Pain restricts me to journeys of less than one hour.','Pain restricts me to short necessary journeys under 30 minutes.','Pain prevents me from travelling except to receive treatment.']}
+    ]
+  }
+};
+
+// Minimal stubs for other languages — copy EN structure, override key strings
+['ur','pl','ar'].forEach(function(l) { T[l] = Object.assign({}, T['en']); });
+T['ur'].dir='rtl'; T['ar'].dir='rtl';
+T['ur'].hdrTitle='ریڑھ کی ہڈی کا بیرونی مریض کلینک'; T['ur'].hdrSub='مریض کی صحت سے متعلق سوالنامہ';
+T['ur'].wlcTitle='خوش آمدید۔\nبراہ کرم یہ سوالنامہ مکمل کریں۔';
+T['ur'].wlcBody='آپ کے جوابات آپ کی طبی ٹیم کو آج کی ملاقات کی تیاری میں مدد کرتے ہیں۔ <strong>گزشتہ دو ہفتوں</strong> کی بنیاد پر ایمانداری سے جواب دیں۔';
+T['ur'].odiTitle='درد اور روزمرہ کی سرگرمیاں'; T['ur'].rfTitle='اہم علامات'; T['ur'].cmTitle='طبی تاریخ';
+T['ur'].pdTitle='آپ کا درد کہاں ہے؟'; T['ur'].vasTitle='درد کے اسکور'; T['ur'].sumTitle='طبی خلاصہ';
+T['ur'].yes='ہاں'; T['ur'].no='نہیں'; T['ur'].lblBack='واپس'; T['ur'].lblNext='شروع کریں';
+T['ur'].vasWords=['کوئی درد نہیں','بہت ہلکا','ہلکا','ہلکا-اعتدال','اعتدال','اعتدال','اعتدال-شدید','شدید','شدید','بہت شدید','بدترین'];
+T['pl'].dir='ltr'; T['pl'].hdrTitle='Poradnia Kręgosłupa'; T['pl'].hdrSub='Kwestionariusz Zdrowotny Pacjenta';
+T['pl'].wlcTitle='Witamy.\nProsimy o wypełnienie kwestionariusza.';
+T['pl'].wlcBody='Odpowiedzi pomogą zespołowi klinicznemu przygotować się do wizyty. Proszę odpowiadać szczerze na podstawie <strong>ostatnich dwóch tygodni</strong>.';
+T['pl'].odiTitle='Ból a Codzienne Czynności'; T['pl'].rfTitle='Ważne Objawy'; T['pl'].cmTitle='Historia Medyczna';
+T['pl'].pdTitle='Gdzie Odczuwa Pan/Pani Ból?'; T['pl'].vasTitle='Nasilenie Bólu'; T['pl'].sumTitle='Podsumowanie Kliniczne';
+T['pl'].yes='Tak'; T['pl'].no='Nie'; T['pl'].lblBack='Wstecz'; T['pl'].lblNext='Rozpocznij';
+T['ar'].hdrTitle='عيادة العمود الفقري'; T['ar'].hdrSub='استبيان صحة المريض';
+T['ar'].wlcTitle='مرحباً.\nيرجى أخذ بضع دقائق لإكمال هذا الاستبيان.';
+T['ar'].wlcBody='إجاباتك تساعد فريقك الطبي. أجب بصدق بناءً على <strong>الأسبوعين الماضيين</strong>.';
+T['ar'].odiTitle='الألم والأنشطة اليومية'; T['ar'].rfTitle='أعراض مهمة'; T['ar'].cmTitle='التاريخ الطبي';
+T['ar'].pdTitle='أين يوجد ألمك؟'; T['ar'].vasTitle='درجات الألم'; T['ar'].sumTitle='الملخص السريري';
+T['ar'].yes='نعم'; T['ar'].no='لا'; T['ar'].lblBack='رجوع'; T['ar'].lblNext='ابدأ';
+T['ar'].vasWords=['لا ألم','خفيف جداً','خفيف','خفيف-متوسط','متوسط','متوسط','متوسط-شديد','شديد','شديد','شديد جداً','أسوأ ممكن'];
+
+// ═══════════════════════════════════════════════════════
+// LANGUAGE
+// ═══════════════════════════════════════════════════════
+function setLang(l) {
+  lang = l;
+  var t = T[l];
+  document.documentElement.lang = l;
+  document.documentElement.dir = t.dir;
+  document.querySelectorAll('.lang-btn').forEach(function(b) {
+    b.classList.toggle('on', b.textContent.trim() === {en:'EN',ur:'اردو',pl:'PL',ar:'عربي'}[l]);
+  });
+  var ids = {
+    hdrTitle:'hdrTitle', hdrSub:'hdrSub',
+    pdCardTitle:'pdCardTitle', pdCardSub:'pdCardSub',
+    hospLbl:'hospLbl', dobLbl:'dobLbl',
+    odiTitle:'odiTitle', odiDesc:'odiDesc',
+    rfTitle:'rfTitle', rfDesc:'rfDesc',
+    cmTitle:'cmTitle', cmDesc:'cmDesc',
+    btTitle:'btTitle', btQ:'btQ', btTickLbl:'btTickLbl', btOtherLbl:'btOtherLbl',
+    alTitle:'alTitle', alQ:'alQ', alTickLbl:'alTickLbl', alOtherLbl:'alOtherLbl',
+    pdTitle:'pdTitle', pdDesc:'pdDesc', pdHowTo:'pdHowTo', pdSkip:'pdSkip',
+    vasTitle:'vasTitle', vasDesc:'vasDesc',
+    vasBackLbl:'vasBackLbl', vasLegLbl:'vasLegLbl',
+    sumTitle:'sumTitle', sumDesc:'sumDesc',
+    lblDraw:'lblDraw', lblErase:'lblErase', lblAch:'lblAch', lblBrn:'lblBrn', lblNmb:'lblNmb', lblClr:'lblClr',
+    wlcPrivacy:'wlcPrivacy'
+  };
+  Object.keys(ids).forEach(function(k) {
+    var el = document.getElementById(ids[k]);
+    if (el && t[k]) el.innerHTML = t[k].replace && t[k].replace('\n','<br>') || t[k];
+  });
+  var el;
+  el = document.getElementById('btY'); if(el) el.textContent = t.yes;
+  el = document.getElementById('btN'); if(el) el.textContent = t.no;
+  el = document.getElementById('alY'); if(el) el.textContent = t.yes;
+  el = document.getElementById('alN'); if(el) el.textContent = t.no;
+  el = document.getElementById('vasLo1'); if(el) el.textContent = t.vasLo;
+  el = document.getElementById('vasHi1'); if(el) el.textContent = t.vasHi;
+  el = document.getElementById('vasLo2'); if(el) el.textContent = t.vasLo;
+  el = document.getElementById('vasHi2'); if(el) el.textContent = t.vasHi;
+  el = document.getElementById('btOther'); if(el) el.placeholder = t.btOtherPh || '';
+  el = document.getElementById('alOther'); if(el) el.placeholder = t.alOtherPh || '';
+  document.querySelectorAll('.body-lbl').forEach(function(el, i) {
+    el.textContent = i === 0 ? (t.frontLbl||'Front') : (t.backLbl||'Back');
+  });
+  document.getElementById('odiErr').textContent = t.errODI;
+  document.getElementById('rfErr').textContent = t.errRF;
+  document.getElementById('cmErr').textContent = t.errCM;
+
+  // Show/hide translation note for non-English languages
+  var noteEl = document.getElementById('translationNote');
+  if (!noteEl) {
+    noteEl = document.createElement('div');
+    noteEl.id = 'translationNote';
+    noteEl.style.cssText = 'background:#fff3cd;border:1px solid #ffc107;border-radius:7px;padding:9px 13px;font-size:0.82rem;color:#856404;margin-bottom:12px;';
+    var odiSec = document.querySelector('#s-odi .inner');
+    if (odiSec) odiSec.insertBefore(noteEl, odiSec.firstChild);
+  }
+  if (lang !== 'en') {
+    var noteText = {
+      ur: '⚠ طبی سوالات انگریزی میں ہیں — براہ کرم عملے سے مدد طلب کریں۔',
+      pl: '⚠ Pytania kliniczne są w języku angielskim — prosimy o pomoc personelu.',
+      ar: '⚠ الأسئلة السريرية باللغة الإنجليزية — يرجى طلب المساعدة من الموظفين.'
+    };
+    noteEl.textContent = noteText[lang] || '';
+    noteEl.style.display = 'block';
+  } else {
+    noteEl.style.display = 'none';
+  }
+
+  rebuildODI(); rebuildRF(); rebuildCM();
+  updateVASDisplay('Back', state.vasBack);
+  updateVASDisplay('Leg', state.vasLeg);
+  updateNav();
+}
+
+// ═══════════════════════════════════════════════════════
+// DOB
+// ═══════════════════════════════════════════════════════
+function initDOB() {
+  var dayEl = document.getElementById('dobDay');
+  var monEl = document.getElementById('dobMon');
+  var yrEl  = document.getElementById('dobYr');
+  // Days
+  for (var d = 1; d <= 31; d++) {
+    var o = document.createElement('option');
+    o.value = String(d).padStart(2,'0');
+    o.textContent = String(d).padStart(2,'0');
+    if (d === 29) o.selected = true;
+    dayEl.appendChild(o);
+  }
+  // Months
+  MONTHS_EN.forEach(function(m, i) {
+    var o = document.createElement('option');
+    o.value = String(i+1).padStart(2,'0');
+    o.textContent = m;
+    if (i === 5) o.selected = true; // June
+    monEl.appendChild(o);
+  });
+  // Years
+  var now = new Date().getFullYear();
+  for (var y = now; y >= now - 120; y--) {
+    var o = document.createElement('option');
+    o.value = String(y);
+    o.textContent = String(y);
+    if (y === 2013) o.selected = true;
+    yrEl.appendChild(o);
+  }
+  updateDOB();
+}
+
+function updateDOB() {
+  var d = document.getElementById('dobDay').value;
+  var m = document.getElementById('dobMon').value;
+  var y = document.getElementById('dobYr').value;
+  state.dob = d + '/' + m + '/' + y;
+  var mName = MONTHS_EN[parseInt(m,10)-1] || m;
+  // dobDisplay intentionally not shown — dropdowns are self-explanatory
+}
+
+function formatDOB(dob) {
+  if (!dob) return '';
+  var p = dob.split('/');
+  if (p.length !== 3) return dob;
+  return p[0] + ' ' + (MONTHS_EN[parseInt(p[1],10)-1]||p[1]) + ' ' + p[2];
+}
+
+// ═══════════════════════════════════════════════════════
+// ODI
+// ═══════════════════════════════════════════════════════
+function rebuildODI() {
+  var t = T[lang];
+  var container = document.getElementById('odiCards');
+  container.innerHTML = '';
+  t.odiSections.forEach(function(q, qi) {
+    var card = document.createElement('div');
+    card.className = 'card';
+    var titleHTML = '<div class="card-title"><span class="num">'+(qi+1)+'</span>'+q.t;
+    if (q.optional) titleHTML += '<span style="font-size:0.7rem;font-weight:300;color:var(--muted);margin-left:5px">'+t.odiOptional+'</span>';
+    titleHTML += '</div>';
+    var optsHTML = '<div class="odi-opts">';
+    q.opts.forEach(function(opt, oi) {
+      var sel = state.odiAns[qi] === oi ? ' sel' : '';
+      optsHTML += '<div class="odi-opt'+sel+'" onclick="pickODI('+qi+','+oi+')"><div class="rdot"></div><div class="odi-lbl">'+opt+'</div></div>';
+    });
+    optsHTML += '</div>';
+    card.innerHTML = titleHTML + optsHTML;
+    container.appendChild(card);
+  });
+}
+
+function pickODI(qi, oi) {
+  state.odiAns[qi] = oi;
+  var opts = document.querySelectorAll('#odiCards .card:nth-child('+(qi+1)+') .odi-opt');
+  opts.forEach(function(el, i) { el.classList.toggle('sel', i===oi); });
+}
+
+function odiScore() {
+  var t = T[lang];
+  var scored = state.odiAns.map(function(v,i){return{v:v,i:i};}).filter(function(x){return x.v!==null;});
+  if (!scored.length) return {pct:0, band:t.odiBands[0]};
+  var total = scored.reduce(function(s,x){return s+x.v;},0);
+  var pct = Math.round(total/(scored.length*5)*100);
+  var bi = pct<=20?0:pct<=40?1:pct<=60?2:pct<=80?3:4;
+  return {pct:pct, band:t.odiBands[bi]};
+}
+
+// ═══════════════════════════════════════════════════════
+// RED FLAGS
+// ═══════════════════════════════════════════════════════
+var RF_IDS = ['rf0','rf1','rf2','rf3','rf4'];
+
+function rebuildRF() {
+  var t = T[lang];
+  var container = document.getElementById('rfRows');
+  container.innerHTML = '';
+  t.rfQs.forEach(function(q, i) {
+    var id = RF_IDS[i];
+    var val = state.rf[id];
+    var row = document.createElement('div');
+    row.className = 'yn-row';
+    row.innerHTML = '<div class="yn-lbl">'+q+'</div><div class="yn-btns">'
+      +'<button class="yn-btn yes'+(val==='yes'?' on':'')+'" onclick="ynClick(\''+id+'\',\'yes\',this)">'+t.yes+'</button>'
+      +'<button class="yn-btn no'+(val==='no'?' on':'')+'" onclick="ynClick(\''+id+'\',\'no\',this)">'+t.no+'</button>'
+      +'</div>';
+    container.appendChild(row);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// COMORBIDITIES
+// ═══════════════════════════════════════════════════════
+function rebuildCM() {
+  var t = T[lang];
+  var grid = document.getElementById('cmGrid');
+  grid.innerHTML = '';
+  t.cmLabels.forEach(function(lbl, idx) {
+    var key = T['en'].cmLabels[idx];
+    var on = state.cm.indexOf(key) > -1;
+    var item = document.createElement('div');
+    item.className = 'ci' + (on ? ' on' : '');
+    item.innerHTML = '<div class="cbox"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-lbl">'+lbl+'</div>';
+    item.addEventListener('click', function() {
+      item.classList.toggle('on');
+      if (item.classList.contains('on')) { if (state.cm.indexOf(key)<0) state.cm.push(key); }
+      else { state.cm = state.cm.filter(function(x){return x!==key;}); }
+      if (key === 'Other significant condition') {
+        var box = document.getElementById('cmOtherBox');
+        if (box) box.style.display = item.classList.contains('on') ? 'block' : 'none';
+      }
+    });
+    grid.appendChild(item);
+  });
+}
+
+function buildBTGrid() {
+  var grid = document.getElementById('btGrid');
+  grid.innerHTML = '';
+  var t = T[lang];
+  var makeHdr = function(txt) {
+    var h = document.createElement('div');
+    h.className = 'sec-hdr';
+    h.textContent = txt;
+    grid.appendChild(h);
+  };
+  makeHdr(t.acHeader || 'Anticoagulants');
+  BT_MEDS.filter(function(m){return m.cat==='ac';}).forEach(function(m){makeBTItem(m.n);});
+  makeHdr(t.apHeader || 'Antiplatelets');
+  BT_MEDS.filter(function(m){return m.cat==='ap';}).forEach(function(m){makeBTItem(m.n);});
+}
+
+function makeBTItem(label) {
+  var grid = document.getElementById('btGrid');
+  var on = state.btMeds.indexOf(label) > -1;
+  var item = document.createElement('div');
+  item.className = 'ci' + (on ? ' on' : '');
+  item.innerHTML = '<div class="cbox"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-lbl">'+label+'</div>';
+  item.addEventListener('click', function() {
+    item.classList.toggle('on');
+    if (item.classList.contains('on')) { if (state.btMeds.indexOf(label)<0) state.btMeds.push(label); }
+    else { state.btMeds = state.btMeds.filter(function(x){return x!==label;}); }
+  });
+  grid.appendChild(item);
+}
+
+function buildALGrid() {
+  var grid = document.getElementById('alGrid');
+  grid.innerHTML = '';
+  AL_LIST.forEach(function(a) {
+    var on = state.alList.indexOf(a) > -1;
+    var item = document.createElement('div');
+    item.className = 'ci' + (on ? ' on' : '');
+    item.innerHTML = '<div class="cbox"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="1.5,6 4.5,9 10.5,3" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="ci-lbl">'+a+'</div>';
+    item.addEventListener('click', function() {
+      item.classList.toggle('on');
+      if (item.classList.contains('on')) { if (state.alList.indexOf(a)<0) state.alList.push(a); }
+      else { state.alList = state.alList.filter(function(x){return x!==a;}); }
+    });
+    grid.appendChild(item);
+  });
+}
+
+function ynClick(target, val, btn) {
+  var isRF = RF_IDS.indexOf(target) > -1;
+  if (isRF) { state.rf[target] = val; }
+  else { state[target] = val; }
+  var parent = btn.parentElement;
+  parent.querySelectorAll('.yn-btn').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  if (target === 'bt') {
+    document.getElementById('btDetail').style.display = val==='yes' ? 'block' : 'none';
+    if (val === 'yes') buildBTGrid();
+  }
+  if (target === 'al') {
+    document.getElementById('alDetail').style.display = val==='yes' ? 'block' : 'none';
+    if (val === 'yes') buildALGrid();
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// VAS
+// ═══════════════════════════════════════════════════════
+function vasChange(which, val) {
+  val = parseInt(val, 10);
+  state['vas'+which] = val;
+  updateVASDisplay(which, val);
+  var sl = document.getElementById('sl'+which);
+  if (sl) {
+    var pct = (val * 10) + '%';
+    sl.style.background = 'linear-gradient(90deg, #0e8a7a ' + pct + ', #e0ddd8 ' + pct + ')';
+  }
+}
+
+function updateVASDisplay(which, val) {
+  var t = T[lang];
+  var numEl = document.getElementById('vas'+which+'Num');
+  var descEl = document.getElementById('vas'+which+'Desc');
+  if (numEl) numEl.textContent = val;
+  if (descEl) descEl.textContent = t.vasWords[val] || '';
+}
+
+// ═══════════════════════════════════════════════════════
+// BODY DIAGRAM — drawn silhouette (no external images)
+// ═══════════════════════════════════════════════════════
+var drawTool = 'draw', drawColor = '#e63946';
+var isDrawing = false, lastX = 0, lastY = 0;
+var cvFront, cvBack, ctxF, ctxB, activeCtx;
+
+function buildDiagram() {
+  var t = T[lang];
+  var wrap = document.getElementById('bodyWrap');
+  wrap.innerHTML = '';
+  ['Front','Back'].forEach(function(side, idx) {
+    var col = document.createElement('div');
+    col.className = 'body-side';
+    var lbl = document.createElement('div');
+    lbl.className = 'body-lbl';
+    lbl.textContent = idx===0 ? (t.frontLbl||'Front') : (t.backLbl||'Back');
+    col.appendChild(lbl);
+    var cv = document.createElement('canvas');
+    cv.className = 'body-canvas';
+    cv.width = 160; cv.height = 360;
+    col.appendChild(cv);
+    wrap.appendChild(col);
+    var ctx = cv.getContext('2d');
+    drawBody(ctx, cv.width, cv.height, idx===1);
+    if (idx===0) { cvFront=cv; ctxF=ctx; } else { cvBack=cv; ctxB=ctx; }
+    attachDraw(cv, ctx);
+  });
+}
+
+// Body diagram — uses inline SVG elements, serialised to Image for canvas drawing
+var _imgFront = null, _imgBack = null;
+
+function _loadSVGImg(svgId, callback) {
+  var svgEl = document.getElementById(svgId);
+  if (!svgEl) { callback(null); return; }
+  var xml = new XMLSerializer().serializeToString(svgEl);
+  var img = new Image();
+  img.onload = function() { callback(img); };
+  img.onerror = function() { callback(null); };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+}
+
+function drawBody(ctx, w, h, isBack) {
+  ctx.clearRect(0, 0, w, h);
+  var svgId = isBack ? 'svgBackSrc' : 'svgFrontSrc';
+  var cached = isBack ? _imgBack : _imgFront;
+
+  function render(img) {
+    ctx.clearRect(0, 0, w, h);
+    if (img) {
+      var svgW = isBack ? 262 : 268, svgH = isBack ? 594 : 591;
+      var pad = 6;
+      var scale = Math.min((w - pad*2) / svgW, (h - pad*2) / svgH);
+      var dw = svgW * scale, dh = svgH * scale;
+      var dx = (w - dw) / 2, dy = (h - dh) / 2;
+      ctx.drawImage(img, dx, dy, dw, dh);
+    }
+    // L / R orientation labels
+    // Front: patient faces viewer — their R is on viewer's left
+    // Back:  SVG is mirrored   — their R is now on viewer's right
+    ctx.save();
+    ctx.font = 'bold 10px Arial,sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillStyle = 'rgba(60,80,110,0.72)';
+    var rX = isBack ? (w - 11) : 11;
+    var lX = isBack ? 11 : (w - 11);
+    ctx.fillText('R', rX, h * 0.47);
+    ctx.fillText('L', lX, h * 0.47);
+    ctx.font = '7px Arial,sans-serif';
+    ctx.fillStyle = 'rgba(60,80,110,0.42)';
+    ctx.fillText('pt', rX, h * 0.47 + 10);
+    ctx.fillText('pt', lX, h * 0.47 + 10);
+    ctx.restore();
+  }
+
+  if (cached) {
+    render(cached);
+  } else {
+    _loadSVGImg(svgId, function(img) {
+      if (isBack) { _imgBack = img; } else { _imgFront = img; }
+      render(img);
+    });
+  }
+}
+
+function attachDraw(cv, ctx) {
+  function pos(e) {
+    var r = cv.getBoundingClientRect();
+    var sx = cv.width/r.width, sy = cv.height/r.height;
+    var src = e.touches ? e.touches[0] : e;
+    return [(src.clientX-r.left)*sx, (src.clientY-r.top)*sy];
+  }
+  function start(e) { e.preventDefault(); isDrawing=true; activeCtx=ctx; var p=pos(e); lastX=p[0]; lastY=p[1]; }
+  function move(e) {
+    if (!isDrawing || activeCtx!==ctx) return;
+    e.preventDefault();
+    var p=pos(e); var x=p[0], y=p[1];
+    ctx.beginPath();
+    if (drawTool==='erase') { ctx.strokeStyle='rgba(232,221,208,1)'; ctx.lineWidth=18; }
+    else { ctx.strokeStyle=drawColor; ctx.lineWidth=9; }
+    ctx.lineCap='round'; ctx.lineJoin='round';
+    ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
+    lastX=x; lastY=y;
+  }
+  function stop() { isDrawing=false; }
+  cv.addEventListener('mousedown', start);
+  cv.addEventListener('mousemove', move);
+  cv.addEventListener('mouseup', stop);
+  cv.addEventListener('touchstart', start, {passive:false});
+  cv.addEventListener('touchmove', move, {passive:false});
+  cv.addEventListener('touchend', stop);
+}
+
+function setTool(t) {
+  drawTool = t;
+  document.getElementById('tDraw').classList.toggle('on', t==='draw');
+  document.getElementById('tErase').classList.toggle('on', t==='erase');
+  if (t==='draw') { document.getElementById('tC0').classList.add('on'); document.getElementById('tC1').classList.remove('on'); document.getElementById('tC2').classList.remove('on'); }
+  else { document.getElementById('tC0').classList.remove('on'); document.getElementById('tC1').classList.remove('on'); document.getElementById('tC2').classList.remove('on'); }
+}
+
+function setCol(c, idx) {
+  drawColor = c; drawTool = 'draw';
+  ['tC0','tC1','tC2'].forEach(function(id,i){ document.getElementById(id).classList.toggle('on', i===idx); });
+  document.getElementById('tDraw').classList.remove('on');
+  document.getElementById('tErase').classList.remove('on');
+}
+
+function clearDiagram() {
+  [[ctxF,false],[ctxB,true]].forEach(function(pair) {
+    var ctx=pair[0], ib=pair[1];
+    if (!ctx) return;
+    drawBody(ctx, ctx.canvas.width, ctx.canvas.height, ib);
+  });
+}
+
+// ═══════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════
+function nav(dir) {
+  if (dir===1 && !validate()) return;
+  if (dir===1 && curSec === SECS.length-2) {
+    showSec(curSec+1);
+    buildSummary();
+    return;
+  }
+  showSec(curSec+dir);
+}
+
+function validate() {
+  var sec = SECS[curSec];
+  var t = T[lang];
+  if (sec==='odi') {
+    var ok = state.odiAns.every(function(v,i){ return v!==null || i===7; });
+    document.getElementById('odiErr').classList.toggle('show', !ok);
+    return ok;
+  }
+  if (sec==='rf') {
+    var ok = RF_IDS.every(function(id){ return state.rf[id]!==undefined; });
+    document.getElementById('rfErr').classList.toggle('show', !ok);
+    return ok;
+  }
+  if (sec==='cm') {
+    var ok = state.bt!==null && state.al!==null;
+    document.getElementById('cmErr').classList.toggle('show', !ok);
+    return ok;
+  }
+  return true;
+}
+
+function showSec(idx) {
+  document.getElementById('s-'+SECS[curSec]).classList.remove('on');
+  curSec = Math.max(0, Math.min(SECS.length-1, idx));
+  document.getElementById('s-'+SECS[curSec]).classList.add('on');
+  window.scrollTo(0,0);
+  updateNav();
+}
+
+function updateNav() {
+  var t = T[lang];
+  var sec = SECS[curSec];
+  var nb = document.getElementById('navBar');
+  var back = document.getElementById('btnBack');
+  var next = document.getElementById('btnNext');
+  nb.style.display = sec==='sum' ? 'none' : 'flex';
+  back.style.display = curSec>0 ? 'flex' : 'none';
+  back.innerHTML = (t.dir==='rtl' ? '' : '← ') + '<span>' + (t.lblBack||'Back') + '</span>' + (t.dir==='rtl' ? ' →' : '');
+  var nxt = sec==='welcome' ? (t.lblNext||'Begin') : sec==='vas' ? (t.sumTitle||'Summary') : 'Next';
+  next.innerHTML = nxt + (t.dir==='rtl' ? ' ←' : ' →');
+  var pct = (curSec/(SECS.length-1))*100;
+  document.getElementById('progFill').style.width = pct+'%';
+  var pill = document.getElementById('stepPill');
+  if (sec==='welcome') pill.textContent = t.welcome||'Welcome';
+  else if (sec==='sum') pill.textContent = t.complete||'Complete';
+  else pill.textContent = (t.stepOf||'Step {n} of {t}').replace('{n}',curSec).replace('{t}',SECS.length-2);
+}
+
+// ═══════════════════════════════════════════════════════
+// SUMMARY
+// ═══════════════════════════════════════════════════════
+function buildSummary() {
+  if (cvFront) state.diagFront = cvFront.toDataURL('image/png');
+  if (cvBack)  state.diagBack  = cvBack.toDataURL('image/png');
+  state.btOther = document.getElementById('btOther').value;
+  state.alOther = document.getElementById('alOther').value;
+
+  var t = T[lang];
+  var odi = odiScore();
+  var posRF = RF_IDS.filter(function(id){ return state.rf[id]==='yes'; });
+  var posRFText = posRF.map(function(id){ return T['en'].rfQs[RF_IDS.indexOf(id)]; });
+  var hasRF = posRF.length > 0;
+
+  // Build clinical summary paragraph (English for clinician)
+  var bandMap = ['minimal','moderate','severe','crippling','bed-bound / severely limited'];
+  var bi = odi.pct<=20?0:odi.pct<=40?1:odi.pct<=60?2:odi.pct<=80?3:4;
+  var pd = function(v){ return v<=2?'mild':v<=4?'moderate':v<=6?'moderately severe':v<=8?'severe':'very severe'; };
+  var sumText = 'Patient self-report questionnaire completed prior to consultation. ';
+  sumText += 'The Oswestry Disability Index score is '+odi.pct+'%, indicating '+bandMap[bi]+' disability. ';
+  sumText += 'Visual analogue scale scores are '+state.vasBack+'/10 for back pain ('+pd(state.vasBack)+') and '+state.vasLeg+'/10 for leg pain ('+pd(state.vasLeg)+'). ';
+  if (hasRF) {
+    sumText += 'IMPORTANT: The patient has reported potential red flag symptoms requiring urgent clinical assessment: ';
+    sumText += posRFText.map(function(r){ return r.replace(/^Have you noticed |^Do you have /,''); }).join('; ') + '. ';
+  } else { sumText += 'No red flag symptoms were reported. '; }
+  if (state.cm.length) { var cmAll = state.cm.slice(); if (state.cmOther && cmAll.indexOf('Other significant condition')>-1) { cmAll = cmAll.map(function(x){return x==='Other significant condition'?'Other ('+state.cmOther+')':x;}); } sumText += 'Reported comorbidities: '+cmAll.join(', ')+'. '; }
+  else { sumText += 'No significant comorbidities reported. '; }
+  var allBT = state.btMeds.concat(state.btOther ? [state.btOther] : []);
+  if (state.bt==='yes') sumText += 'Anticoagulant/antiplatelet medication reported'+(allBT.length?' ('+allBT.join(', ')+')'  :'')+'. ';
+  var allAL = state.alList.concat(state.alOther ? [state.alOther] : []);
+  if (state.al==='yes') sumText += 'Allergy reported'+(allAL.length?': '+allAL.join(', '):'') +'. ';
+  if (state.bt!=='yes' && state.al!=='yes') sumText += 'No blood-thinning medications or allergies reported. ';
+
+  // Render
+  var bc = odi.pct>60?'#c0392b':odi.pct>40?'#d4700a':odi.pct>20?'#b08000':'#1a7a5e';
+  var html = '';
+
+  // Patient details bar
+  if (state.hospNum || state.dob) {
+    html += '<div class="pat-det-box">';
+    if (state.hospNum) html += '<div class="pat-det-item"><div class="pdi-lbl">'+(t.hospLblPDF||'Hospital No.')+'</div><div class="pdi-val">'+state.hospNum+'</div></div>';
+    if (state.dob) html += '<div class="pat-det-item"><div class="pdi-lbl">'+(t.dobLblPDF||'Date of Birth')+'</div><div class="pdi-val">'+formatDOB(state.dob)+'</div></div>';
+    html += '</div>';
+  }
+
+  if (hasRF) {
+    html += '<div class="flag-box"><div style="font-size:1.25rem;flex-shrink:0">🚨</div><div class="flag-txt"><strong>⚠ '+(t.rfAlertLbl||'Red Flag(s) Reported')+'</strong>'
+      + posRFText.map(function(r){return '<div style="margin-top:2px">• '+r+'</div>';}).join('') + '</div></div>';
+  }
+
+  html += '<div class="score-grid">';
+  html += '<div class="score-card"><div class="score-n">'+odi.pct+'%</div><div class="score-l">ODI</div><div class="score-b" style="color:'+bc+'">'+odi.band+'</div></div>';
+  html += '<div class="score-card"><div class="score-n">'+state.vasBack+'</div><div class="score-l">Back VAS</div><div class="score-b" style="color:'+(state.vasBack>6?'#c0392b':state.vasBack>3?'#d4700a':'#1a7a5e')+'">/10</div></div>';
+  html += '<div class="score-card"><div class="score-n">'+state.vasLeg+'</div><div class="score-l">Leg VAS</div><div class="score-b" style="color:'+(state.vasLeg>6?'#c0392b':state.vasLeg>3?'#d4700a':'#1a7a5e')+'">/10</div></div>';
+  html += '</div>';
+
+  html += '<div class="sum-block"><h3>'+(t.sumLbl||'Clinical Summary')+'</h3>'+sumText+'</div>';
+
+  if (state.cm.length) {
+    html += '<div class="card"><div class="card-title">'+(t.cmLbl||'Comorbidities:').replace(':','')+'</div><div style="font-size:0.86rem;line-height:1.8">'+state.cm.join(' · ')+'</div></div>';
+  }
+
+  if (state.bt==='yes' || state.al==='yes') {
+    html += '<div class="card">';
+    if (state.bt==='yes') {
+      var btStr = allBT.join(', ') || (t.yes||'Yes');
+      html += '<div class="yn-row"><div class="yn-lbl" style="font-size:0.85rem"><strong>'+(t.btLbl||'Blood thinners:')+'</strong> '+btStr+'</div></div>';
+    }
+    if (state.al==='yes') {
+      var alStr = allAL.join(', ') || (t.yes||'Yes');
+      html += '<div class="yn-row" style="border:none"><div class="yn-lbl" style="font-size:0.85rem"><strong>'+(t.alLbl||'Allergies:')+'</strong> '+alStr+'</div></div>';
+    }
+    html += '</div>';
+  }
+
+  html += '<div class="card"><div class="card-title">'+(t.diagLbl||'Pain Diagram')+'</div><div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">';
+  if (state.diagFront) html += '<div style="text-align:center"><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">'+(t.frontLbl||'Front')+'</div><img src="'+state.diagFront+'" style="width:130px;border-radius:7px;border:1px solid var(--border)"></div>';
+  if (state.diagBack)  html += '<div style="text-align:center"><div style="font-size:0.7rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase">'+(t.backLbl||'Back')+'</div><img src="'+state.diagBack+'"  style="width:130px;border-radius:7px;border:1px solid var(--border)"></div>';
+  html += '</div></div>';
+
+  document.getElementById('sumContent').innerHTML = html;
+  document.getElementById('pdfBtn').style.display = 'flex';
+  document.getElementById('resetBtn').style.display = 'block';
+}
+
+// ═══════════════════════════════════════════════════════
+// PDF
+// ═══════════════════════════════════════════════════════
+function exportPDF() {
+  var t = T[lang];
+  var odi = odiScore();
+  var posRFText = RF_IDS.filter(function(id){return state.rf[id]==='yes';}).map(function(id){return T['en'].rfQs[RF_IDS.indexOf(id)];});
+  var allBT = state.btMeds.concat(state.btOther?[state.btOther]:[]);
+  var allAL = state.alList.concat(state.alOther?[state.alOther]:[]);
+  var now = new Date().toLocaleString('en-GB',{dateStyle:'long',timeStyle:'short'});
+  var langName = {en:'English',ur:'Urdu/Punjabi',pl:'Polish',ar:'Arabic'}[lang]||lang;
+  var sumEl = document.querySelector('.sum-block');
+  var sumTxt = sumEl ? sumEl.innerText.split('\n').slice(1).join(' ') : '';
+  var w = window.open('','_blank');
+  if (!w) { alert('Please allow popups to export PDF.'); return; }
+  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Spinal Clinic — Patient Questionnaire</title><style>'
+    +'body{font-family:Georgia,serif;color:#1a1a2e;max-width:680px;margin:0 auto;padding:26px 22px;font-size:12.5px;}'
+    +'h1{font-size:1.25rem;color:#003087;margin-bottom:1px;} .nhs{color:#005EB8;font-weight:900;}'
+    +'.meta{font-size:0.73rem;color:#666;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #ddd;}'
+    +'h2{font-size:0.86rem;color:#0f2340;border-bottom:1px solid #ddd;padding-bottom:2px;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.06em;}'
+    +'.scores{display:flex;gap:12px;margin:7px 0;} .sb{border:1px solid #ccc;border-radius:5px;padding:8px 12px;text-align:center;min-width:76px;}'
+    +'.sb .n{font-size:1.4rem;font-weight:700;color:#0f2340;} .sb .l{font-size:0.66rem;color:#666;text-transform:uppercase;}'
+    +'.rf{background:#fef2f2;border:1.5px solid #e07070;border-radius:5px;padding:9px 13px;margin-bottom:11px;}'
+    +'.rf strong{color:#c0392b;font-size:0.73rem;text-transform:uppercase;display:block;margin-bottom:2px;}'
+    +'.ai{background:#f7f4ef;border-left:3px solid #0e8a7a;padding:10px 13px;border-radius:3px;font-size:0.87rem;line-height:1.75;margin:5px 0;}'
+    +'.pd{display:flex;gap:12px;margin-top:5px;} .disc{font-size:0.7rem;color:#999;margin-top:18px;padding-top:8px;border-top:1px solid #eee;}'
+    +'.det{background:#f0f4f9;border-radius:5px;padding:8px 12px;margin-bottom:12px;display:flex;gap:18px;}'
+    +'.det-i .l{font-size:0.67rem;color:#666;text-transform:uppercase;letter-spacing:0.05em;} .det-i .v{font-size:0.95rem;font-weight:700;margin-top:1px;}'
+    +'@media print{body{padding:10px;}}'
+    +'</style></head><body>'
+    +'<h1><span class="nhs">NHS</span> South Tyneside and Sunderland NHS Foundation Trust</h1>'
+    +'<div style="font-size:0.8rem;color:#555;margin-bottom:8px;">Spinal Outpatient Clinic — Patient Questionnaire</div>'
+    +'<div class="meta">Generated: '+now+' | Language: '+langName+'</div>'
+    +(state.hospNum||state.dob ? '<div class="det">'+(state.hospNum?'<div class="det-i"><div class="l">Hospital Number</div><div class="v">'+state.hospNum+'</div></div>':'')+(state.dob?'<div class="det-i"><div class="l">Date of Birth</div><div class="v">'+formatDOB(state.dob)+'</div></div>':'')+'</div>' : '')
+    +(posRFText.length?'<div class="rf"><strong>⚠ Red Flag(s) Reported</strong>'+posRFText.map(function(r){return '<div>• '+r+'</div>';}).join('')+'</div>':'')
+    +'<h2>Pain Scores</h2><div class="scores">'
+    +'<div class="sb"><div class="n">'+odi.pct+'%</div><div class="l">ODI</div><div style="font-size:0.7rem;color:#555;margin-top:1px">'+odi.band+'</div></div>'
+    +'<div class="sb"><div class="n">'+state.vasBack+'/10</div><div class="l">Back VAS</div></div>'
+    +'<div class="sb"><div class="n">'+state.vasLeg+'/10</div><div class="l">Leg VAS</div></div>'
+    +'</div>'
+    +'<h2>Clinical Summary</h2><div class="ai">'+sumTxt+'</div>'
+    +'<h2>Medical History</h2>'
+    +'<p><strong>Comorbidities:</strong> '+(state.cm.length?state.cm.join(', '):'None reported')+'</p>'
+    +'<p><strong>Blood thinners:</strong> '+(state.bt==='yes'?'Yes'+(allBT.length?' — '+allBT.join(', '):''):'No')+'</p>'
+    +'<p><strong>Allergies:</strong> '+(state.al==='yes'?'Yes'+(allAL.length?' — '+allAL.join(', '):''):'None known')+'</p>'
+    +'<h2>Pain Diagram</h2><div class="pd">'
+    +(state.diagFront?'<div><div style="font-size:0.68rem;color:#666;margin-bottom:2px">FRONT</div><img src="'+state.diagFront+'" style="width:115px;border:1px solid #ccc;border-radius:4px"></div>':'')
+    +(state.diagBack?'<div><div style="font-size:0.68rem;color:#666;margin-bottom:2px">BACK</div><img src="'+state.diagBack+'" style="width:115px;border:1px solid #ccc;border-radius:4px"></div>':'')
+    +'</div>'
+    +'<div class="disc">'+( t.pdfDisc||'This document was generated by a patient self-report tool. It is not a clinical assessment. All information should be verified with the patient during consultation.')+'</div>'
+    +'</body></html>');
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 600);
+}
+
+// ═══════════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════════
+function resetApp() {
+  if (confirm('Start new patient? All data will be cleared.')) location.reload();
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT — runs after DOM is ready
+// ═══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  initDOB();
+  rebuildODI();
+  rebuildRF();
+  rebuildCM();
+  buildDiagram();
+  updateVASDisplay('Back', 0);
+  updateVASDisplay('Leg', 0);
+  updateNav();
+});
+</script>
+<svg xmlns="http://www.w3.org/2000/svg" id="svgFrontSrc" style="display:none" viewBox="0 0 268 591"><g transform="translate(0,591) scale(0.1,-0.1)" fill="#7a6a5a" stroke="none"><path d="M1265 5801 c-129 -35 -217 -125 -252 -258 -11 -44 -13 -84 -8 -168 13 -214 38 -302 105 -358 28 -24 30 -29 30 -100 l0 -74 -77 -28 c-43 -16 -103 -40 -133 -55 -30 -14 -80 -32 -110 -39 -74 -18 -167 -68 -195 -106 -56 -73 -84 -154 -94 -280 -6 -66 -18 -160 -27 -210 -8 -49 -19 -180 -24 -290 -8 -191 -10 -205 -43 -305 -38 -112 -47 -165 -77 -439 l-19 -174 -60 -57 c-64 -60 -125 -170 -119 -214 3 -24 43 -35 61 -17 25 25 23 7 -5 -69 -27 -69 -29 -84 -19 -106 10 -22 16 -25 41 -20 24 4 30 2 30 -12 0 -43 49 -56 75 -19 11 16 18 19 23 10 14 -22 56 -20 66 4 8 17 16 20 41 16 19 -3 35 0 42 9 18 23 63 274 63 354 0 92 12 141 63 264 82 199 105 284 117 440 11 148 17 189 50 365 11 55 21 118 22 140 3 36 4 33 16 -30 7 -38 22 -106 34 -150 19 -70 21 -109 22 -320 0 -186 -3 -264 -17 -345 -39 -229 -49 -339 -50 -510 0 -301 36 -556 124 -880 l23 -86 -20 -114 c-30 -179 -25 -317 19 -520 20 -91 47 -208 61 -261 13 -53 29 -129 35 -169 12 -89 4 -113 -67 -203 -80 -101 -92 -143 -50 -165 52 -27 326 -45 365 -24 14 8 23 8 31 0 13 -13 193 -11 282 3 131 21 141 56 46 173 -26 31 -56 75 -68 98 -20 39 -21 45 -9 127 7 47 21 118 32 156 11 39 37 155 59 260 46 220 51 326 23 513 -19 126 -17 144 36 337 31 117 62 302 82 501 19 192 7 459 -31 704 -30 197 -31 214 -27 435 4 206 8 240 31 330 14 55 26 118 26 140 0 30 3 36 10 25 5 -8 10 -35 10 -60 0 -25 5 -61 10 -80 19 -63 49 -272 60 -409 11 -143 25 -195 129 -463 35 -91 41 -118 41 -181 0 -42 13 -146 30 -234 33 -172 45 -195 86 -168 21 13 23 13 29 -5 10 -31 43 -45 64 -26 15 14 19 14 34 -4 9 -11 23 -20 31 -20 19 0 46 27 46 46 0 10 7 13 24 8 17 -4 28 0 39 16 16 24 14 38 -22 128 -26 65 -26 65 0 52 25 -14 69 -5 69 14 0 40 -64 151 -125 216 -36 38 -65 76 -65 84 0 8 -11 115 -25 239 -21 191 -31 244 -64 349 -37 119 -39 130 -44 303 -4 105 -14 230 -26 300 -11 66 -24 168 -29 226 -19 202 -98 307 -267 354 -33 9 -109 37 -170 62 -60 25 -123 51 -138 57 -27 11 -28 15 -30 84 -3 67 -1 74 23 95 82 70 104 149 105 377 0 166 -1 178 -25 225 -32 65 -102 135 -164 164 -54 25 -168 36 -221 22z"/></g></svg>
+<svg xmlns="http://www.w3.org/2000/svg" id="svgBackSrc"  style="display:none" viewBox="0 0 262 594"><g transform="translate(262,594) scale(-0.1,-0.1)" fill="#7a6a5a" stroke="none"><path d="M1180 5784 c-58 -18 -132 -73 -170 -126 -53 -73 -64 -131 -57 -313 7 -192 20 -244 83 -321 45 -55 45 -55 42 -125 l-3 -71 -105 -40 c-58 -22 -149 -56 -203 -74 -118 -40 -156 -62 -202 -118 -58 -71 -75 -124 -91 -275 -7 -75 -21 -176 -29 -226 -8 -49 -18 -171 -21 -270 -6 -173 -8 -185 -46 -304 -38 -122 -44 -157 -79 -491 l-12 -114 -66 -71 c-67 -70 -126 -177 -119 -213 4 -23 46 -27 69 -6 26 23 24 14 -12 -83 -31 -81 -31 -84 -13 -104 12 -14 25 -18 41 -14 16 4 23 1 23 -9 0 -19 27 -46 46 -46 8 0 22 9 31 20 15 18 19 18 34 4 21 -19 54 -5 64 27 5 15 10 18 18 10 13 -13 54 -14 62 -2 3 6 14 58 25 116 11 58 22 111 26 116 3 5 9 69 14 142 8 131 8 133 69 281 68 167 101 285 101 361 0 69 25 266 49 389 11 56 22 117 23 136 l4 35 13 -45 c49 -166 59 -242 60 -455 1 -166 -3 -238 -19 -345 -54 -354 -62 -550 -35 -825 23 -223 41 -325 96 -524 33 -121 35 -145 13 -284 -32 -210 -12 -378 91 -780 31 -123 41 -243 23 -276 -7 -14 -37 -39 -67 -57 -30 -17 -62 -41 -72 -52 -18 -23 -15 -65 6 -82 19 -16 231 -80 286 -87 46 -5 109 16 109 37 0 5 16 -2 36 -15 49 -33 80 -32 220 11 136 41 161 54 170 90 8 32 -12 54 -95 107 l-64 40 6 111 c3 68 14 140 27 186 12 41 33 127 46 190 69 322 74 385 45 563 -27 161 -27 162 8 282 57 198 90 399 111 688 14 178 2 364 -38 602 -24 143 -26 185 -26 400 0 226 2 247 27 355 40 166 39 164 53 90 6 -36 21 -117 33 -180 11 -63 25 -176 31 -250 10 -150 23 -209 76 -343 93 -238 96 -249 101 -347 5 -104 49 -357 66 -378 6 -8 23 -12 39 -10 20 3 32 -1 38 -12 13 -24 38 -32 61 -19 15 7 23 6 35 -6 29 -28 74 -12 74 27 0 14 6 16 30 12 25 -5 31 -2 41 19 12 25 5 50 -47 181 -7 19 -7 19 16 3 32 -22 57 -22 69 1 16 30 -53 156 -123 224 l-59 58 -24 222 c-23 217 -36 284 -88 457 -21 71 -25 103 -25 219 0 90 -8 193 -24 306 -14 94 -27 207 -31 251 -7 92 -50 197 -105 254 -36 37 -111 75 -194 96 -31 8 -78 25 -104 38 -26 13 -82 36 -124 52 l-78 28 0 70 c0 65 2 72 35 108 75 83 98 176 99 394 1 128 0 132 -32 197 -78 159 -249 234 -412 182z"/></g></svg>
+</body>
+</html>
