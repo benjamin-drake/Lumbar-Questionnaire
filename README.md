@@ -27,9 +27,9 @@ Vanilla HTML, CSS, and JavaScript. No frameworks, no CDN, no build process, no n
 ## Usage
 Download `spinal-clinic-questionnaire.html` and open it in a browser, or save it directly to a tablet.
 
+
 ## Attribution
 The Oswestry Disability Index (ODI v2.1) is reproduced for clinical use with reference to Fairbank JCT, Pynsent PB. *The Oswestry Disability Index.* Spine 2000;25(22):2940–2953. Copyright © Institute of Musculoskeletal Research and Clinical Implementation. For licensing enquiries contact IMRCI.
 
 ## Author
 Benjamin Drake, South Tyneside and Sunderland NHS Foundation Trust
----
