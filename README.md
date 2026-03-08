@@ -4,6 +4,3 @@ A self-contained, offline-capable HTML tool for use in NHS spinal outpatient wai
 
 Built for South Tyneside and Sunderland NHS Foundation Trust Spinal Outpatient Clinic. Single HTML file, no dependencies, no internet connection required.
 
-## Contributors
-- Benjamin Drake
-- Claude (Anthropic AI)
