@@ -4,3 +4,6 @@ A self-contained, offline-capable HTML tool for use in NHS spinal outpatient wai
 
 Built for South Tyneside and Sunderland NHS Foundation Trust Spinal Outpatient Clinic. Single HTML file, no dependencies, no internet connection required.
 
+---
+
+The Oswestry Disability Index (ODI v2.1) is reproduced for clinical use with reference to Fairbank JCT, Pynsent PB. *The Oswestry Disability Index.* Spine 2000;25(22):2940–2953. Copyright © Institute of Musculoskeletal Research and Clinical Implementation. For licensing enquiries contact IMRCI.
