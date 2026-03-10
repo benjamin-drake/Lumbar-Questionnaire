@@ -6,6 +6,7 @@ A tablet-based patient self-report tool for NHS spinal outpatient clinics. Repla
 
 ## Features
 
+- **Multilanguage support** — full clinical translations in Urdu, Punjabi (Gurmukhi), Bengali, Polish, and Arabic, with right-to-left layout support for Urdu and Arabic
 - **ODI v2.1** — Oswestry Disability Index with automatic scoring and disability band classification
 - **Red flag screen** — Five validated red flag questions with automatic flagging on export
 - **Medical history** — Comorbidities checklist, blood-thinning medications with named drug selection, and allergy recording
@@ -31,7 +32,9 @@ Vanilla HTML, CSS, and JavaScript. No frameworks, no CDN, no build process, no n
 
 ## Usage
 
-Download `spinal-clinic-questionnaire.html` and open it in a browser, or save it directly to a tablet.
+**[▶ Open Questionnaire](https://benjamin-drake.github.io/Lumbar-Questionnaire/)** — opens directly in the browser, no download needed.
+
+Or download `index.html` and open it locally, or save it directly to a tablet.
 
 ## Attribution
 
