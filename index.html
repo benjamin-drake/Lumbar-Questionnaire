@@ -310,7 +310,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="tool-row">
       <button class="tool-btn on" id="tDraw" onclick="setTool('draw')">✏ <span id="lblDraw">Draw</span></button>
       <button class="tool-btn" id="tErase" onclick="setTool('erase')">◻ <span id="lblErase">Erase</span></button>
-      <button class="tool-btn on" id="tC0" onclick="setCol('#e63946',0)"><span class="cdot" style="background:#e63946"></span><span id="lblAch">Aching</span></button>
+      <button class="tool-btn on" id="tC0" onclick="setCol('#e63946',0)"><span class="cdot" style="background:#e63946"></span><span id="lblAch">Pain</span></button>
       <button class="tool-btn" id="tC1" onclick="setCol('#f4a261',1)"><span class="cdot" style="background:#f4a261"></span><span id="lblBrn">Burning</span></button>
       <button class="tool-btn" id="tC2" onclick="setCol('#2a9d8f',2)"><span class="cdot" style="background:#2a9d8f"></span><span id="lblNmb">Numbness</span></button>
       <button class="tool-btn clr" onclick="clearDiagram()">✕ <span id="lblClr">Clear all</span></button>
@@ -452,7 +452,7 @@ const T = {
     vasLo:'0 — No pain', vasHi:'10 — Worst possible',
     sumTitle:'Clinical Summary',
     sumDesc:'This summary is for your clinical team. Please hand the tablet to the receptionist when complete.',
-    lblDraw:'Draw', lblErase:'Erase', lblAch:'Aching', lblBrn:'Burning', lblNmb:'Numbness', lblClr:'Clear all',
+    lblDraw:'Draw', lblErase:'Erase', lblAch:'Pain', lblBrn:'Burning', lblNmb:'Numbness', lblClr:'Clear all',
     lblBack:'Back', lblNext:'Begin',
     yes:'Yes', no:'No',
     pdfLbl:'Export PDF for Clinical Record', resetLbl:'Start New Patient',
@@ -721,7 +721,7 @@ T['pl'].vasBackLbl='Ból pleców'; T['pl'].vasLegLbl='Ból nogi (rwa kulszowa / 
 T['pl'].vasLo='0 — Brak bólu'; T['pl'].vasHi='10 — Najgorszy możliwy';
 T['pl'].sumTitle='Podsumowanie Kliniczne';
 T['pl'].sumDesc='To podsumowanie jest przeznaczone dla Twojego zespołu klinicznego. Po ukończeniu przekaż tablet recepcjonistce.';
-T['pl'].lblDraw='Rysuj'; T['pl'].lblErase='Gumka'; T['pl'].lblAch='Bolący'; T['pl'].lblBrn='Palący'; T['pl'].lblNmb='Drętwienie'; T['pl'].lblClr='Wyczyść wszystko';
+T['pl'].lblDraw='Rysuj'; T['pl'].lblErase='Gumka'; T['pl'].lblAch='Ból'; T['pl'].lblBrn='Palący'; T['pl'].lblNmb='Drętwienie'; T['pl'].lblClr='Wyczyść wszystko';
 T['pl'].lblBack='Wstecz'; T['pl'].lblNext='Rozpocznij';
 T['pl'].yes='Tak'; T['pl'].no='Nie';
 T['pl'].pdfLbl='Eksportuj PDF do dokumentacji klinicznej'; T['pl'].resetLbl='Rozpocznij nowego pacjenta';
@@ -830,6 +830,7 @@ function setLang(l) {
   });
   var ids = {
     hdrTitle:'hdrTitle', hdrSub:'hdrSub',
+    wlcTitle:'wlcTitle', wlcBody:'wlcBody',
     pdCardTitle:'pdCardTitle', pdCardSub:'pdCardSub',
     hospLbl:'hospLbl', dobLbl:'dobLbl',
     odiTitle:'odiTitle', odiDesc:'odiDesc',
@@ -1120,7 +1121,7 @@ function buildDiagram() {
     col.appendChild(lbl);
     var cv = document.createElement('canvas');
     cv.className = 'body-canvas';
-    cv.width = 160; cv.height = 360;
+    cv.width = 220; cv.height = 490;
     col.appendChild(cv);
     wrap.appendChild(col);
     var ctx = cv.getContext('2d');
