@@ -1239,8 +1239,8 @@ function attachDraw(cv, ctx) {
     e.preventDefault();
     var p=pos(e); var x=p[0], y=p[1];
     ctx.beginPath();
-    if (drawTool==='erase') { ctx.strokeStyle='rgba(232,221,208,1)'; ctx.lineWidth=18; }
-    else { ctx.strokeStyle=drawColor; ctx.lineWidth=9; }
+    if (drawTool==='erase') { ctx.globalCompositeOperation='destination-out'; ctx.strokeStyle='rgba(0,0,0,1)'; ctx.lineWidth=22; }
+    else { ctx.globalCompositeOperation='source-over'; ctx.strokeStyle=drawColor; ctx.lineWidth=9; }
     ctx.lineCap='round'; ctx.lineJoin='round';
     ctx.moveTo(lastX,lastY); ctx.lineTo(x,y); ctx.stroke();
     lastX=x; lastY=y;
@@ -1296,7 +1296,9 @@ function canProceed(sec) {
   if (sec === 'odi') return state.odiAns.every(function(v,i){ return v!==null || i===7; });
   if (sec === 'rf')  return RF_IDS.every(function(id){ return state.rf[id]!==undefined; });
   if (sec === 'cm')  return state.bt!==null && state.al!==null;
-  return true; // pd, vas — always ok to proceed
+  if (sec === 'pd')  return true; // diagram optional
+  if (sec === 'vas') return true; // zero is a valid score
+  return true;
 }
 
 function validate() {
@@ -1627,7 +1629,7 @@ function exportPDF() {
 // RESET
 // ═══════════════════════════════════════════════════════
 function resetApp() {
-  if (confirm('Start new patient? All data will be cleared.')) location.reload();
+  location.reload();
 }
 
 // ═══════════════════════════════════════════════════════
