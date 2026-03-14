@@ -964,6 +964,18 @@ function formatDOB(dob) {
   return p[0] + ' ' + (MONTHS_EN[parseInt(p[1],10)-1]||p[1]) + ' ' + p[2];
 }
 
+function calcAge(dob) {
+  if (!dob) return null;
+  var p = dob.split('/');
+  if (p.length !== 3) return null;
+  var today = new Date();
+  var birth = new Date(parseInt(p[2],10), parseInt(p[1],10)-1, parseInt(p[0],10));
+  var age = today.getFullYear() - birth.getFullYear();
+  var m = today.getMonth() - birth.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
+  return age >= 0 && age < 130 ? age : null;
+}
+
 // ═══════════════════════════════════════════════════════
 // ODI
 // ═══════════════════════════════════════════════════════
@@ -1599,7 +1611,7 @@ function exportPDF() {
 
     // Section heading
     + 'h2{font-family:Georgia,serif;font-size:0.82rem;color:#0e8a7a;text-transform:uppercase;'
-    +    'letter-spacing:0.08em;margin:14px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #d9d4cc;}'
+    +    'letter-spacing:0.08em;margin:14px 0 6px;padding-bottom:4px;border-bottom:1.5px solid #d9d4cc;break-after:avoid;}'
 
     // Summary paragraph
     + '.sum-block{background:#0f2340;color:#fff;border-radius:10px;padding:16px 18px;'
@@ -1630,7 +1642,7 @@ function exportPDF() {
     + '  body{background:#fff;}'
     + '  .page{padding:12px;}'
     + '  @page{margin:10mm;size:A4;}'
-    + '  .card,.score-card,.sum-block,.flag-box,.pat-box{break-inside:avoid;}'
+    + '  .card,.score-card,.sum-block,.flag-box,.pat-box,.score-grid,.diag-wrap{break-inside:avoid;} h2{break-after:avoid;}'
     + '}';
 
   var body = ''
@@ -1653,6 +1665,7 @@ function exportPDF() {
       ? '<div class="pat-box">'
         + (state.hospNum?'<div class="pat-i"><div class="lbl">Hospital Number</div><div class="val">'+state.hospNum+'</div></div>':'')
         + (state.dob?'<div class="pat-i"><div class="lbl">Date of Birth</div><div class="val">'+formatDOB(state.dob)+'</div></div>':'')
+        + (state.dob && calcAge(state.dob)!==null?'<div class="pat-i"><div class="lbl">Age</div><div class="val">'+calcAge(state.dob)+' yrs</div></div>':'')
         + '</div>'
       : '')
 
