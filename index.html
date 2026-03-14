@@ -95,7 +95,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
 .body-lbl{font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;}
 .body-canvas-wrap{position:relative;display:inline-block;border:1.5px solid var(--border);border-radius:8px;background:#fff;}.body-canvas-bg{display:block;border-radius:8px;}.body-canvas-draw{position:absolute;top:0;left:0;touch-action:none;cursor:crosshair;border-radius:8px;}
 .tool-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;align-items:center;}
-.tool-btn{padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-size:0.77rem;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:all 0.15s;}
+.tool-btn{padding:6px 12px;border-radius:7px;border:1.5px solid var(--border);background:#fff;font-size:0.77rem;font-weight:500;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px;transition:all 0.15s;}.tool-lbl{padding:6px 12px;border-radius:7px;font-size:0.77rem;font-weight:600;font-family:inherit;display:flex;align-items:center;gap:4px;color:var(--navy);background:transparent;}
 .tool-btn.on{background:var(--navy);color:#fff;border-color:var(--navy);}
 .tool-btn.clr{color:var(--danger);border-color:#e5b0ac;}
 .cdot{width:13px;height:13px;border-radius:50%;display:inline-block;flex-shrink:0;}
@@ -308,7 +308,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;heigh
     <div class="sec-desc" id="pdDesc">Use your finger to draw on the body diagrams below to show where you feel pain.</div>
     <div class="how-to" id="pdHowTo"><strong>How to use:</strong> Choose a colour for your type of pain, then drag your finger over the body picture to mark the painful area. Tap <em>Erase</em> to correct mistakes or <em>Clear all</em> to start again.</div>
     <div class="tool-row">
-      <button class="tool-btn on" id="tDraw" onclick="setTool('draw')">✏ <span id="lblDraw">Draw</span></button>
+      <span class="tool-lbl" id="tDraw">✏ <span id="lblDraw">Draw</span></span>
       <button class="tool-btn" id="tErase" onclick="setTool('erase')">◻ <span id="lblErase">Erase</span></button>
       <button class="tool-btn on" id="tC0" onclick="setCol('#e63946',0)"><span class="cdot" style="background:#e63946"></span><span id="lblAch">Pain</span></button>
       <button class="tool-btn" id="tC1" onclick="setCol('#f4a261',1)"><span class="cdot" style="background:#f4a261"></span><span id="lblBrn">Burning</span></button>
@@ -1273,7 +1273,7 @@ function attachDraw(cv, ctx) {
 
 function setTool(t) {
   drawTool = t;
-  document.getElementById('tDraw').classList.toggle('on', t==='draw');
+  // tDraw is now a label, not a button — no toggle needed
   document.getElementById('tErase').classList.toggle('on', t==='erase');
   if (t==='draw') { document.getElementById('tC0').classList.add('on'); document.getElementById('tC1').classList.remove('on'); document.getElementById('tC2').classList.remove('on'); }
   else { document.getElementById('tC0').classList.remove('on'); document.getElementById('tC1').classList.remove('on'); document.getElementById('tC2').classList.remove('on'); }
@@ -1282,7 +1282,7 @@ function setTool(t) {
 function setCol(c, idx) {
   drawColor = c; drawTool = 'draw';
   ['tC0','tC1','tC2'].forEach(function(id,i){ document.getElementById(id).classList.toggle('on', i===idx); });
-  document.getElementById('tDraw').classList.remove('on');
+  // tDraw is a label — no classList needed
   document.getElementById('tErase').classList.remove('on');
 }
 
@@ -1341,6 +1341,11 @@ function showSec(idx) {
   curSec = Math.max(0, Math.min(SECS.length-1, idx));
   document.getElementById('s-'+SECS[curSec]).classList.add('on');
   window.scrollTo(0,0);
+  // Re-initialise VAS slider appearance when arriving at that section
+  if (SECS[curSec] === 'vas') {
+    updateVASDisplay('Back', state.vasBack);
+    updateVASDisplay('Leg',  state.vasLeg);
+  }
   updateNav();
 }
 
@@ -1533,9 +1538,9 @@ function exportPDF() {
     var score = (ans !== null) ? ans : '—';
     var bg = i % 2 === 0 ? '#f7f4ef' : '#fdfcfa';
     odiRows += '<tr style="background:'+bg+';border-bottom:1px solid #e5e0d8;">'
-      + '<td style="padding:7px 12px;font-weight:600;width:20%;vertical-align:top;color:#0f2340;font-size:11.5px">'+sec.t+'</td>'
-      + '<td style="padding:7px 12px;color:#333;vertical-align:top;font-size:11.5px">'+responseText+'</td>'
-      + '<td style="padding:7px 12px;text-align:right;width:9%;vertical-align:top;color:#5a6478;font-weight:700;font-size:11.5px">'+score+'/5</td>'
+      + '<td style="padding:5px 9px;font-weight:600;width:20%;vertical-align:top;color:#0f2340;font-size:10px">'+sec.t+'</td>'
+      + '<td style="padding:5px 9px;color:#333;vertical-align:top;font-size:10px">'+responseText+'</td>'
+      + '<td style="padding:5px 9px;text-align:right;width:9%;vertical-align:top;color:#5a6478;font-weight:700;font-size:10px">'+score+'/5</td>'
       + '</tr>';
   });
 
@@ -1548,8 +1553,8 @@ function exportPDF() {
     var ansColor = isYes ? '#c0392b' : '#1a7a5e';
     var ansText = isYes ? 'YES ⚠' : 'No';
     rfRows += '<tr style="background:'+bg+';border-bottom:1px solid #e5e0d8;">'
-      + '<td style="padding:7px 12px;color:#333;vertical-align:top;font-size:11.5px">'+q+'</td>'
-      + '<td style="padding:7px 12px;text-align:right;width:12%;vertical-align:top;font-weight:700;color:'+ansColor+';font-size:11.5px;white-space:nowrap">'+ansText+'</td>'
+      + '<td style="padding:5px 9px;color:#333;vertical-align:top;font-size:10px">'+q+'</td>'
+      + '<td style="padding:5px 9px;text-align:right;width:12%;vertical-align:top;font-weight:700;color:'+ansColor+';font-size:10px;white-space:nowrap">'+ansText+'</td>'
       + '</tr>';
   });
 
@@ -1559,7 +1564,7 @@ function exportPDF() {
   var css = ''
     + '*{box-sizing:border-box;margin:0;padding:0;}'
     + 'body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;'
-    +      'background:#f7f4ef;color:#1a1a2e;padding:0;font-size:12.5px;}'
+    +      'background:#fff;color:#1a1a2e;padding:0;font-size:11px;}'
     + '.page{max-width:740px;margin:0 auto;padding:24px 22px;}'
 
     // Header
@@ -1598,7 +1603,7 @@ function exportPDF() {
 
     // Summary paragraph
     + '.sum-block{background:#0f2340;color:#fff;border-radius:10px;padding:16px 18px;'
-    +            'margin-bottom:12px;line-height:1.8;font-size:12px;}'
+    +            'margin-bottom:12px;line-height:1.75;font-size:10.5px;}'
     + '.sum-block .lbl{font-family:Georgia,serif;font-size:0.88rem;font-weight:400;font-style:italic;'
     +                  'color:rgba(255,255,255,0.6);display:block;margin-bottom:6px;}'
 
@@ -1609,7 +1614,7 @@ function exportPDF() {
     + 'table{width:100%;border-collapse:collapse;}'
 
     // Medical history
-    + '.med-item{font-size:12px;padding:6px 0;border-bottom:1px solid #ede9e3;color:#333;}'
+    + '.med-item{font-size:10.5px;padding:5px 0;border-bottom:1px solid #ede9e3;color:#333;}'
     + '.med-item:last-child{border:none;}'
     + '.med-item strong{color:#0f2340;}'
 
@@ -1622,7 +1627,7 @@ function exportPDF() {
     + '.disc{font-size:0.65rem;color:#aaa;margin-top:18px;padding-top:10px;border-top:1px solid #e5e0d8;line-height:1.55;}'
 
     + '@media print{'
-    + '  body{background:#f7f4ef;}'
+    + '  body{background:#fff;}'
     + '  .page{padding:12px;}'
     + '  @page{margin:10mm;size:A4;}'
     + '  .card,.score-card,.sum-block,.flag-box,.pat-box{break-inside:avoid;}'
