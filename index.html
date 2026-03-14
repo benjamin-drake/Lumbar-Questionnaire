@@ -1488,54 +1488,140 @@ function buildSummary() {
 function exportPDF() {
   var t = T[lang];
   var odi = odiScore();
+  var hasRF = RF_IDS.some(function(id){ return state.rf[id]==='yes'; });
   var posRFText = RF_IDS.filter(function(id){return state.rf[id]==='yes';}).map(function(id){return T['en'].rfQs[RF_IDS.indexOf(id)];});
   var allBT = state.btMeds.concat(state.btOther?[state.btOther]:[]);
   var allAL = state.alList.concat(state.alOther?[state.alOther]:[]);
   var now = new Date().toLocaleString('en-GB',{dateStyle:'long',timeStyle:'short'});
-  var langName = {en:'English',ur:'Urdu/Punjabi',pl:'Polish',ar:'Arabic'}[lang]||lang;
+  var langName = {en:'English',ur:'Urdu',pa:'Punjabi',bn:'Bengali',pl:'Polish',ar:'Arabic'}[lang]||lang;
   var sumEl = document.querySelector('.sum-block');
   var sumTxt = sumEl ? sumEl.innerText.split('\n').slice(1).join(' ') : '';
+  var bc = odi.pct>60?'#c0392b':odi.pct>40?'#d4700a':odi.pct>20?'#b08000':'#1a7a5e';
+
+  // Build ODI table rows
+  var odiRows = '';
+  T['en'].odiSections.forEach(function(sec, i) {
+    var ans = state.odiAns[i];
+    var responseText = (ans !== null) ? sec.opts[ans] : '—';
+    var score = (ans !== null) ? ans : '—';
+    var bg = i % 2 === 0 ? '#f8f7f5' : '#ffffff';
+    odiRows += '<tr style="background:'+bg+';border-bottom:1px solid #e8e4de;">'
+      + '<td style="padding:6px 10px;font-weight:600;width:22%;vertical-align:top;color:#0f2340;font-size:11px">'+sec.t+'</td>'
+      + '<td style="padding:6px 10px;color:#333;vertical-align:top;font-size:11px">'+responseText+'</td>'
+      + '<td style="padding:6px 10px;text-align:right;width:9%;vertical-align:top;color:#888;font-weight:600;font-size:11px">'+score+'/5</td>'
+      + '</tr>';
+  });
+
+  // Build red flag rows
+  var rfRows = '';
+  T['en'].rfQs.forEach(function(q, i) {
+    var ans = state.rf[RF_IDS[i]];
+    var isYes = ans === 'yes';
+    var bg = i % 2 === 0 ? '#f8f7f5' : '#ffffff';
+    var ansColor = isYes ? '#c0392b' : '#1a7a5e';
+    var ansText = isYes ? 'YES ⚠' : 'No';
+    rfRows += '<tr style="background:'+bg+';border-bottom:1px solid #e8e4de;">'
+      + '<td style="padding:6px 10px;color:#333;vertical-align:top;font-size:11px">'+q+'</td>'
+      + '<td style="padding:6px 10px;text-align:right;width:12%;vertical-align:top;font-weight:700;color:'+ansColor+';font-size:11px">'+ansText+'</td>'
+      + '</tr>';
+  });
+
   var w = window.open('','_blank');
   if (!w) { alert('Please allow popups to export PDF.'); return; }
-  w.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Spinal Clinic — Patient Questionnaire</title><style>'
-    +'body{font-family:Georgia,serif;color:#1a1a2e;max-width:680px;margin:0 auto;padding:26px 22px;font-size:12.5px;}'
-    +'h1{font-size:1.25rem;color:#003087;margin-bottom:1px;} .nhs{color:#005EB8;font-weight:900;}'
-    +'.meta{font-size:0.73rem;color:#666;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid #ddd;}'
-    +'h2{font-size:0.86rem;color:#0f2340;border-bottom:1px solid #ddd;padding-bottom:2px;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.06em;}'
-    +'.scores{display:flex;gap:12px;margin:7px 0;} .sb{border:1px solid #ccc;border-radius:5px;padding:8px 12px;text-align:center;min-width:76px;}'
-    +'.sb .n{font-size:1.4rem;font-weight:700;color:#0f2340;} .sb .l{font-size:0.66rem;color:#666;text-transform:uppercase;}'
-    +'.rf{background:#fef2f2;border:1.5px solid #e07070;border-radius:5px;padding:9px 13px;margin-bottom:11px;}'
-    +'.rf strong{color:#c0392b;font-size:0.73rem;text-transform:uppercase;display:block;margin-bottom:2px;}'
-    +'.ai{background:#f7f4ef;border-left:3px solid #0e8a7a;padding:10px 13px;border-radius:3px;font-size:0.87rem;line-height:1.75;margin:5px 0;}'
-    +'.pd{display:flex;gap:12px;margin-top:5px;} .disc{font-size:0.7rem;color:#999;margin-top:18px;padding-top:8px;border-top:1px solid #eee;}'
-    +'.det{background:#f0f4f9;border-radius:5px;padding:8px 12px;margin-bottom:12px;display:flex;gap:18px;}'
-    +'.det-i .l{font-size:0.67rem;color:#666;text-transform:uppercase;letter-spacing:0.05em;} .det-i .v{font-size:0.95rem;font-weight:700;margin-top:1px;}'
-    +'@media print{body{padding:10px;}}'
-    +'</style></head><body>'
-    +'<h1><span class="nhs">NHS</span> South Tyneside and Sunderland NHS Foundation Trust</h1>'
-    +'<div style="font-size:0.8rem;color:#555;margin-bottom:8px;">Spinal Outpatient Clinic — Patient Questionnaire</div>'
-    +'<div class="meta">Generated: '+now+' | Language: '+langName+'</div>'
-    +(state.hospNum||state.dob ? '<div class="det">'+(state.hospNum?'<div class="det-i"><div class="l">Hospital Number</div><div class="v">'+state.hospNum+'</div></div>':'')+(state.dob?'<div class="det-i"><div class="l">Date of Birth</div><div class="v">'+formatDOB(state.dob)+'</div></div>':'')+'</div>' : '')
-    +(posRFText.length?'<div class="rf"><strong>⚠ Red Flag(s) Reported</strong>'+posRFText.map(function(r){return '<div>• '+r+'</div>';}).join('')+'</div>':'')
-    +'<h2>Pain Scores</h2><div class="scores">'
-    +'<div class="sb"><div class="n">'+odi.pct+'%</div><div class="l">ODI</div><div style="font-size:0.7rem;color:#555;margin-top:1px">'+odi.band+'</div></div>'
-    +'<div class="sb"><div class="n">'+state.vasBack+'/10</div><div class="l">Back VAS</div></div>'
-    +'<div class="sb"><div class="n">'+state.vasLeg+'/10</div><div class="l">Leg VAS</div></div>'
-    +'</div>'
-    +'<h2>Clinical Summary</h2><div class="ai">'+sumTxt+'</div>'
-    +'<h2>Medical History</h2>'
-    +'<p><strong>Comorbidities:</strong> '+(state.cm.length?state.cm.join(', '):'None reported')+'</p>'
-    +'<p><strong>Blood thinners:</strong> '+(state.bt==='yes'?'Yes'+(allBT.length?' — '+allBT.join(', '):''):'No')+'</p>'
-    +'<p><strong>Allergies:</strong> '+(state.al==='yes'?'Yes'+(allAL.length?' — '+allAL.join(', '):''):'None known')+'</p>'
-    +'<h2>Pain Diagram</h2><div class="pd">'
-    +(state.diagFront?'<div><div style="font-size:0.68rem;color:#666;margin-bottom:2px">FRONT</div><img src="'+state.diagFront+'" style="width:115px;border:1px solid #ccc;border-radius:4px"></div>':'')
-    +(state.diagBack?'<div><div style="font-size:0.68rem;color:#666;margin-bottom:2px">BACK</div><img src="'+state.diagBack+'" style="width:115px;border:1px solid #ccc;border-radius:4px"></div>':'')
-    +'</div>'
-    +'<div class="disc">'+( t.pdfDisc||'This document was generated by a patient self-report tool. It is not a clinical assessment. All information should be verified with the patient during consultation.')+'</div>'
-    +'</body></html>');
+
+  var html = '<!DOCTYPE html><html><head><meta charset="UTF-8">'
+    + '<title>Spinal Clinic — Patient Questionnaire</title><style>'
+    + 'body{font-family:Arial,Helvetica,sans-serif;color:#1a1a2e;max-width:720px;margin:0 auto;padding:24px 22px;font-size:12px;}'
+    + '.nhs-header{display:flex;align-items:center;gap:12px;margin-bottom:4px;}'
+    + '.nhs-box{background:#003087;color:#fff;font-weight:900;font-size:1.1rem;padding:5px 9px;border-radius:3px;letter-spacing:0.05em;flex-shrink:0;}'
+    + '.nhs-trust .t1{font-size:0.95rem;font-weight:700;color:#003087;line-height:1.2;}'
+    + '.nhs-trust .t2{font-size:0.72rem;color:#555;}'
+    + '.subtitle{font-size:0.78rem;color:#555;margin:3px 0 6px;}'
+    + '.meta{font-size:0.7rem;color:#777;padding:5px 0 10px;border-bottom:2px solid #003087;margin-bottom:12px;}'
+    + '.det-box{background:#f0f4f9;border-radius:5px;padding:8px 14px;margin-bottom:12px;display:flex;gap:24px;}'
+    + '.det-i .l{font-size:0.65rem;color:#666;text-transform:uppercase;letter-spacing:0.05em;}'
+    + '.det-i .v{font-size:0.95rem;font-weight:700;color:#0f2340;margin-top:1px;}'
+    + '.rf-box{background:#fef2f2;border:1.5px solid #e07070;border-radius:5px;padding:9px 13px;margin-bottom:12px;}'
+    + '.rf-box strong{color:#c0392b;font-size:0.72rem;text-transform:uppercase;display:block;margin-bottom:3px;}'
+    + '.scores{display:flex;gap:10px;margin:8px 0 12px;}'
+    + '.sb{border:1.5px solid #ddd;border-radius:6px;padding:8px 14px;text-align:center;min-width:80px;}'
+    + '.sb .n{font-size:1.35rem;font-weight:700;color:#0f2340;}'
+    + '.sb .l{font-size:0.62rem;color:#777;text-transform:uppercase;margin-top:1px;}'
+    + '.sb .b{font-size:0.68rem;margin-top:2px;font-weight:600;}'
+    + 'h2{font-size:0.75rem;color:#003087;border-bottom:1.5px solid #003087;padding-bottom:3px;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.07em;}'
+    + '.ai{background:#0f2340;color:#fff;border-radius:5px;padding:11px 14px;font-size:11px;line-height:1.75;margin-bottom:12px;}'
+    + 'table{width:100%;border-collapse:collapse;border:1px solid #e0dbd4;border-radius:5px;overflow:hidden;margin-bottom:12px;}'
+    + 'th{background:#0f2340;color:#fff;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;padding:6px 10px;text-align:left;}'
+    + 'th:last-child{text-align:right;}'
+    + '.pd{display:flex;gap:14px;margin-top:4px;}'
+    + '.pd-lbl{font-size:0.65rem;color:#777;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:3px;}'
+    + '.med-row{font-size:11px;padding:4px 0;border-bottom:1px solid #eee;}'
+    + '.disc{font-size:0.65rem;color:#aaa;margin-top:18px;padding-top:8px;border-top:1px solid #eee;}'
+    + '@media print{body{padding:8px;} @page{margin:12mm;}}'
+    + '</style></head><body>'
+
+    // Header
+    + '<div class="nhs-header">'
+    + '<div class="nhs-box">NHS</div>'
+    + '<div class="nhs-trust"><div class="t1">South Tyneside and Sunderland NHS Foundation Trust</div><div class="t2">NHS Foundation Trust</div></div>'
+    + '</div>'
+    + '<div class="subtitle">Spinal Outpatient Clinic — Patient Questionnaire</div>'
+    + '<div class="meta">Generated: '+now+' &nbsp;|&nbsp; Language: '+langName+'</div>'
+
+    // Patient details
+    + (state.hospNum||state.dob ? '<div class="det-box">'
+      + (state.hospNum?'<div class="det-i"><div class="l">Hospital Number</div><div class="v">'+state.hospNum+'</div></div>':'')
+      + (state.dob?'<div class="det-i"><div class="l">Date of Birth</div><div class="v">'+formatDOB(state.dob)+'</div></div>':'')
+      + '</div>' : '')
+
+    // Red flag alert (positives only, kept at top)
+    + (hasRF ? '<div class="rf-box"><strong>🚨 Red Flag(s) Reported</strong>'
+      + posRFText.map(function(r){return '<div style="font-size:11px;margin-top:2px">• '+r+'</div>';}).join('')
+      + '</div>' : '')
+
+    // Scores
+    + '<h2>Pain Scores</h2>'
+    + '<div class="scores">'
+    + '<div class="sb"><div class="n">'+odi.pct+'%</div><div class="l">ODI</div><div class="b" style="color:'+bc+'">'+odi.band+'</div></div>'
+    + '<div class="sb"><div class="n">'+state.vasBack+'/10</div><div class="l">Back VAS</div></div>'
+    + '<div class="sb"><div class="n">'+state.vasLeg+'/10</div><div class="l">Leg VAS</div></div>'
+    + '</div>'
+
+    // Clinical summary paragraph
+    + '<h2>Clinical Summary</h2>'
+    + '<div class="ai">'+sumTxt+'</div>'
+
+    // ODI item table
+    + '<h2>Oswestry Disability Index — Item Responses</h2>'
+    + '<table><thead><tr><th>Domain</th><th>Selected Response</th><th style="text-align:right">Score</th></tr></thead>'
+    + '<tbody>'+odiRows+'</tbody></table>'
+
+    // Red flag screening table (all five)
+    + '<h2>Red Flag Screening</h2>'
+    + '<table><thead><tr><th>Question</th><th style="text-align:right">Response</th></tr></thead>'
+    + '<tbody>'+rfRows+'</tbody></table>'
+
+    // Medical history
+    + '<h2>Medical History</h2>'
+    + '<div class="med-row"><strong>Comorbidities:</strong> '+(state.cm.length?state.cm.join(', '):'None reported')+'</div>'
+    + '<div class="med-row"><strong>Blood-thinning medication:</strong> '+(state.bt==='yes'?'Yes'+(allBT.length?' — '+allBT.join(', '):''):'No')+'</div>'
+    + '<div class="med-row" style="border:none"><strong>Allergies:</strong> '+(state.al==='yes'?'Yes'+(allAL.length?' — '+allAL.join(', '):''):'None known')+'</div>'
+
+    // Pain diagram
+    + '<h2>Pain Diagram</h2><div class="pd">'
+    + (state.diagFront?'<div><div class="pd-lbl">Front</div><img src="'+state.diagFront+'" style="width:120px;border:1px solid #ccc;border-radius:5px"></div>':'')
+    + (state.diagBack?'<div><div class="pd-lbl">Back</div><img src="'+state.diagBack+'" style="width:120px;border:1px solid #ccc;border-radius:5px"></div>':'')
+    + '</div>'
+
+    // Disclaimer
+    + '<div class="disc">'+(t.pdfDisc||'This document was generated by a patient self-report tool. It is not a clinical assessment. All information should be verified with the patient during consultation.')+'</div>'
+    + '</body></html>';
+
+  w.document.write(html);
   w.document.close();
   setTimeout(function(){ w.print(); }, 600);
 }
+
 
 // ═══════════════════════════════════════════════════════
 // RESET
