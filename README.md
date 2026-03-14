@@ -2,7 +2,7 @@
 
 A tablet-based patient self-report tool for NHS spinal outpatient clinics. Replaces paper pre-consultation forms with a guided digital questionnaire, completed by the patient in the waiting area before they are seen.
 
-**Version:** v0.1-beta | **License:** GNU GPLv3 | See <CHANGELOG.md> for version history.
+**Version:** v0.1-beta | **License:** GNU GPLv3 | See [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ## Features
 
@@ -10,10 +10,11 @@ A tablet-based patient self-report tool for NHS spinal outpatient clinics. Repla
 - **ODI v2.1** — Oswestry Disability Index with automatic scoring and disability band classification
 - **Red flag screen** — Five validated red flag questions with automatic flagging on export
 - **Medical history** — Comorbidities checklist, blood-thinning medications with named drug selection, and allergy recording
-- **Body pain diagram** — Front and back silhouette with finger/stylus drawing in three colours (aching, burning, numbness)
+- **Body pain diagram** — Front and back silhouette with finger/stylus drawing in three colours (pain, burning, numbness)
 - **VAS pain scores** — Separate back and leg visual analogue scales
-- **Clinical summary** — Auto-generated plain-English paragraph summarising findings, ready for EPR paste
-- **PDF export** — Single-page printable summary formatted for clinical review and EPR scanning
+- **Clinical summary** — Auto-generated plain-English paragraph summarising findings, with full ODI item table and red flag screening results, ready for EPR paste
+- **PDF export** — Printable summary formatted for clinical review and EPR scanning
+- **Handover screen** — Patient-facing thank you screen shown on completion; clinical summary revealed only when staff tap through
 - **Kiosk mode friendly** — Designed for iPad Guided Access or equivalent tablet lockdown
 
 ## Requirements
